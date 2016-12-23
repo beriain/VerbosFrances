@@ -1,0 +1,1384 @@
+<html>
+  <head>
+    <title>frncs</title>
+    <meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+    <script type="text/javascript">
+    document.addEventListener("touchstart", handleTouchStart, false);
+    document.addEventListener("touchmove", handleTouchMove, false);
+    var xDown = null;
+    function handleTouchStart(evt)
+    {
+		xDown = evt.touches[0].clientX;
+    }
+    function handleTouchMove(evt)
+    {
+		if(!xDown) return;
+		var xUp = evt.touches[0].clientX;
+		var xDiff = xDown - xUp;
+		if(xDiff > 0)
+		{
+			var s = document.getElementById("settings");
+			if(s.style.display != "none")
+			{
+				s.className = "classHideSettingsAnimation";
+				s.style.marginLeft = "-450px";
+				document.getElementById("t").select();
+			}
+		}
+		else
+		{
+			//mostrar las opciones solo si se ha desplazado el dedo desde la parte izquierda
+			if(xDown <= screen.width*0.2)
+			{
+				var s = document.getElementById("settings");
+				if(s.style.marginLeft == "-450px" || s.style.display == "none")
+				{
+				  s.style.display = "block";
+				  s.className = "classShowSettingsAnimation";
+				  s.style.marginLeft = "0";
+				}
+			}
+		}
+		xDown = null;
+    }
+
+	var points = 0;
+    var pmax = 0;
+    var vtemp = 0;//el tiempo del verbo
+	var v = 0;//la posicion del desplegable de verbos, global para poder ponerlo en la correccion
+	var p = 0;//la posicion del desplegable de personas, global para poder ponerlo en la correccion
+    var va = 0;//la posicion del desplegable de verbos auxiliares, global para poder ponerlo en la correccion
+    var r = false;//para saber si se esta reintentando un fallo
+    var it = null;//la fila de la tabla de errores que se ha pulsado, si se acierta la segunda vez se borra de la tabla
+    var tcorrect = "Correct";//el texto para las traducciones
+    var tincorrect = "Incorrect";//el texto para las traducciones
+    var texterreurs = "Mistakes:";//el texto para los errores
+    var tlimpiar = "Clear";
+    var errors = new Array();
+    var vtranslationsPI = new Array();//para el significado de los verbos en presente en cada idioma
+    var vtranslationsPCAvoir = new Array();//para el significado de los verbos en passe compose y avoir en cada idioma
+    var vtranslationsPCEtre = new Array();//para el significado de los verbos en passe compose y etre en cada idioma
+    var vtranslationsImp = new Array();//para el significado de los verbos en imperatif en cada idioma
+	var vtranslationsImparfait = new Array();//para el significado de los verbos en imperatif en cada idioma
+	var vauxPronomPC = ["Me ", "Te ", "Se ", "Nos ", "Os ", "Se "];
+    var vauxPC = ["He ", "Has ", "Ha ", "Hemos ", "Habéis ", "Han "];
+    var i = "";//variable para mostrar la correccion
+	var verbes = [	["Avoir", "ai", "as", "a", "avons", "avez", "ont"],
+		["Être", "suis", "es", "est", "sommes", "êtes", "sont"],
+		["Aimer", "aime", "aimes", "aime", "aimons", "aimez", "aiment"],
+		["Travailler", "travaille", "travailles", "travaille", "travaillons", "travaillez", "travaillent"],
+		["Manger", "mange", "manges", "mange", "mangeons", "mangez", "mangent"],
+		["Commencer", "commence", "commences", "commence", "commençons", "commencez", "commencent"],
+		["Acheter", "achète", "achètes", "achète", "achetons", "achetez", "achètent"],
+		["Jeter", "jette", "jettes", "jette", "jetons", "jetez", "jettent"],
+		["Épeler", "épelle", "épelles", "épelle", "épelons", "épelez", "épellent"],
+		["Congeler", "congèle", "congèles", "congèle", "congelons", "congelez", "congèlent"],
+		["Préférer", "préfère", "préfères", "préfère", "préférons", "préférez", "préfèrent"],
+		["S'appeler", "m'appelle", "t'appelles", "s'appelle", "nous appelons", "vous appelez", "s'appellent"],
+		["Se réveiller", "me réveille", "te réveilles", "se réveille", "nous réveillons", "vous réveillez", "se réveillent"],
+		["Finir", "finis", "finis", "finit", "finissons", "finissez", "finissent"],
+		["Choisir", "choisis", "choisis", "choisit", "choisissons", "choisissez", "choisissent"],
+		["Réussir", "réussis", "réussis", "réussit", "réussissons", "réussissez", "réussissent"],
+		["Aller", "vais", "vas", "va", "allons", "allez", "vont"],
+		["Faire", "fais", "fais", "fait", "faisons", "faites", "font"],
+		["Dire", "dis", "dis", "dit", "disons", "dites", "disent"],
+		["Ouvrir", "ouvre", "ouvres", "ouvre", "ouvrons", "ouvrez", "ouvrent"],
+		["Partir", "pars", "pars", "part", "partons", "partez", "partent"],
+		["Dormir", "dors", "dors", "dort", "dormons", "dormez", "dorment"],
+		["Écrire", "écris", "écris", "écrit", "écrivons", "écrivez", "écrivent"],
+		["Lire", "lis", "lis", "lit", "lisons", "lisez", "lisent"],
+		["Répondre", "réponds", "réponds", "répond", "répondons", "répondez", "répondent"],
+		["Mettre", "mets", "mets", "met", "mettons", "mettez", "mettent"],
+		["Connaître", "connais", "connais", "connaît", "connaissons", "connaisez", "connaissent"],
+		["Voir", "vois", "vois", "voit", "voyons", "voyez", "voient"],
+		["Peindre", "peins", "peins", "peint", "peignons", "peignez", "peignent"],
+		["Prendre", "prends", "prends", "prend", "prenons", "prenez", "prennent"],
+		["Venir", "viens", "viens", "vient", "venons", "venez", "viennent"],
+		["Boire", "bois", "bois", "boit", "buvons", "buvez", "boivent"],
+		["Recevoir", "reçois", "reçois", "reçoit", "recevons", "recevez", "reçoivent"],
+		["Savoir", "sais", "sais", "sait", "savons", "savez", "savent"],
+		["Devoir", "dois", "dois", "doit", "devons", "devez", "doivent"],
+		["Pouvoir", "peux", "peux", "peut", "pouvons", "pouvez", "peuvent"],
+		["Vouloir", "veux", "veux", "veut", "voulons", "voulez", "veulent"]];
+
+    var verbesPCAvoir = [["Manger", "mangé"],
+                    ["Nager", "nagé"],
+                    ["Faire", "fait"],
+                    ["Avoir", "eu"],
+                    ["Être", "été"],
+                    ["Aimer", "aimé"],
+                    ["Oublier", "oublié"],
+                    ["Parler", "parlé"],
+                    ["Dessiner", "dessiné"],
+                    ["Apprendre", "appris"],
+                    ["Choisir", "choisi"],
+                    ["Comprendre", "compris"],
+                    ["Dire", "dit"],
+                    ["Dormir", "dormi"],
+                    ["Écrire", "écrit"],
+                    ["Lire", "lu"],
+                    ["Mettre", "mis"],
+                    ["Ouvrir", "ouvert"],
+                    ["Pouvoir", "pu"],
+                    ["Prendre", "pris"],
+                    ["Vendre", "vendu"],
+                    ["Vivre", "vécu"],
+                    ["Vouloir", "voulu"]];
+
+    var verbesPCEtre = [["Naître", "né/née", "né/née", "né/née"/*/nés/nées"*/, "nés/nées", "né/née/nés/nées", "nés/nées"],
+                        ["Mourir", "mort/morte", "mort/morte", "mort/morte"/*/morts/mortes"*/, "morts/mortes", "mort/morte/morts/mortes", "morts/mortes"],
+                        ["Rentrer", "rentré/rentrée", "rentré/rentrée", "rentré/rentrée"/*/rentrés/rentrées"*/, "rentrés/rentrées", "rentré/rentrée/rentrés/rentrées", "rentrés/rentrées"],
+                  		["Venir", "venu/venue", "venu/venue", "venu/venue"/*/venus/venues"*/, "venus/venues", "venu/venue/venus/venues", "venus/venues"],
+                  		["Arriver", "arrivé/arrivée", "arrivé/arrivée", "arrivé/arrivée"/*/arrivés/arrivées"*/, "arrivés/arrivées", "arrivé/arrivée/arrivés/arrivées", "arrivés/arrivées"],
+                  		["Monter", "monté/montée", "monté/montée", "monté/montée"/*/montés/montées"*/, "montés/montées", "monté/montée/montés/montées", "montés/montées"],
+                  		["Entrer", "entré/entrée", "entré/entrée", "entré/entrée"/*/entrés/entrées"*/, "entrés/entrées", "entré/entrée/entrés/entrées", "entrés/entrées"],
+                  		["Rester", "resté/restée", "resté/restée", "resté/restée"/*/restés/restées"*/, "restés/restées", "resté/restée/restés/restées", "restés/restées"],
+                  		["Sortir", "sorti/sortie", "sorti/sortie", "sorti/sortie"/*/sortis/sorties"*/, "sortis/sorties", "sorti/sortie/sortis/sorties", "sortis/sorties"],
+                  		["Descendre", "descendu/descendue", "descendu/descendue", "descendu/descendue"/*/descendus/descendues"*/, "descendus/descendues", "descendu/descendue/descendus/descendues", "descendus/descendues"],
+                  		["Tomber", "tombé/tombée", "tombé/tombée", "tombé/tombée"/*/tombés/tombées"*/, "tombés/tombées", "tombé/tombée/tombés/tombées", "tombés/tombées"],
+                  		["Partir", "parti/partie", "parti/partie", "parti/partie"/*/partis/parties"*/, "partis/parties", "parti/partie/partis/parties", "partis/parties"],
+                        ["Se réveiller", "réveillé/réveillée", "réveillé/réveillée", "réveillé/réveillée", "réveillés/réveillées", "réveillé/réveillée/réveillés/réveillées", "réveillés/réveillées"]];
+
+    var verbesImperatif = [ ["Manger", "mange", "mangeons", "mangez"],
+                            ["Commencer", "commence", "commençons", "commencez"],
+                            ["Travailler", "travaille", "travaillons", "travaillez"],
+                            ["Sourire", "souris", "sourions", "souriez"],
+                            ["Prendre", "prends", "prenons", "prenez"],
+                            ["Mettre", "mets", "mettons", "mettez"],
+                            ["Dormir", "dors", "dormons", "dormez"],
+                            ["Croire", "crois", "croyons", "croyez"],
+                            ["Courir", "cours", "courons", "courez"],
+                            ["Faire", "fais", "faisons", "faites"],
+                            ["Attendre", "attends", "attendons", "attendez"],
+                            ["Se réveiller", "réveille-toi", "réveillons-nous", "réveillez-vous"],
+                            ["Se lever", "lève-toi", "levons-nous", "levez-vous"],
+                            ["Se dépêcher", "dépêche-toi", "dépêchons-nous", "dépêchez-vous"],
+                            ["Se préparer", "prépare-toi", "préparons-nous", "préparez-vous"],
+                            ["Se raser", "rase-toi", "rasons-nous", "rasez-vous"],
+                            ["Se doucher", "douche-toi", "douchons-nous", "douchez-vous"],
+                            ["S'habiller", "habille-toi", "habillons-nous", "habillez-vous"],
+                            ["Se peigner", "peigne-toi", "peignons-nous", "peignez-vous"],
+                            ["Se coucher", "couche-toi", "couchons-nous", "couchez-vous"]];
+							
+	var verbesImparfait = [ ["Avoir", "avais", "avais", "avait", "avions", "aviez", "avaient"],
+							["Être", "étais", "étais", "était", "étions", "étiez", "étaient"],
+							["Manger", "mangeais", "mangeais", "mangeais", "mangions", "mangiez", "mangeaient"],
+							["Commencer", "commençais", "commençais", "commençait", "commencions", "commenciez", "commençaient"]];
+
+	function check()
+	{
+		if(vtemp == 0) checkPresent();
+		if(vtemp == 1) checkPasse();
+		if(vtemp == 2) checkImperatif();
+		if(vtemp == 3) checkImparfait();
+		
+		r = false;//ya no es reintento
+		//quitar los bordes de seleccion y restablecer el tamaño de fuente
+		//para que se vuelva a ver el texto en la tabla de errores
+		for(x = 0; x < document.getElementById("erreurs").getElementsByTagName("tr").length; x++)
+		{
+			document.getElementById("erreurs").rows[x].cells[0].style.border = "none";
+			document.getElementById("erreurs").rows[x].cells[0].style.fontSize = "100%";
+		}
+		//si el tiempo verbal es aleatorio
+		if(document.getElementById("random").checked)
+		{
+			//vtemp = Math.round(Math.random());
+			vtemp = (Math.floor(Math.random() * 4) + 1) - 1;
+			if(vtemp == 0)
+			{
+				setPresent();
+				setRandomPerson();
+				v = Math.floor(Math.random() * ((verbes.length-1) - 0 + 1)) + 0;
+				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+				/***/
+				document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
+				/***/
+			}
+			if(vtemp == 1)
+			{
+				setPasseCompose();
+				setRandomPerson();
+				va = Math.round(Math.random());
+				if(va == 0)//si estamos con avoir
+					v = Math.floor(Math.random() * ((verbesPCAvoir.length-1) - 0 + 1)) + 0;
+				else//si estamos con etre
+					v = Math.floor(Math.random() * ((verbesPCEtre.length-1) - 0 + 1)) + 0;
+				document.getElementById("verbAux").value = va;
+				changeTemp();
+				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+				/***/
+				document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
+				/***/
+			}
+			if(vtemp == 2)
+			{
+				setImperatif();
+				setRandomPerson();
+				v = Math.floor(Math.random() * ((verbesImperatif.length-1) - 0 + 1)) + 0;
+				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+			}
+			if(vtemp == 3)
+			{
+				setImparfait();
+				setRandomPerson();
+				v = Math.floor(Math.random() * ((verbesImparfait.length-1) - 0 + 1)) + 0;
+				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+			}
+			document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
+		}
+		translateVerbs();
+	}
+
+    function checkPresent()
+    {
+		v = document.getElementById("verb").value;
+		p = document.getElementById("person").value;
+		var t = document.getElementById("t").value.toLowerCase().trim();//t es lo que ha escrito el usuario
+		if(t == verbes[v][p]) correct(t);
+		else incorrect(t);
+		document.getElementById("t").value = "";//se borra lo escrito
+		document.getElementById("t").select();//se selecciona el input para facilitar la escritura
+		if(!document.getElementById("random").checked)//si no estamos en modo aleatorio
+		{
+			p++;//se avanza a la siguiente persona
+			if(p > 6)//si se llega a la ultima persona, se resetea la persona y se avanza al siguiente verbo
+			{
+				p = 1;
+				v++;//se avanza al siguiente verbo
+				if(v > verbes.length-1) v = 0;//si se llega al ultimo verbo, se empieza otra vez por el primero
+				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+			}
+		}
+		document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
+    }
+
+    function checkPasse()//comprobacion de passe compose
+    {
+		va = document.getElementById("verbAux").value;
+		v = document.getElementById("verb").value;
+		p = document.getElementById("person").value;
+		var t = document.getElementById("t").value.toLowerCase().trim();
+		if(va == 0)//si estamos con avoir
+		{
+			if(t == verbes[va][p] + " " + verbesPCAvoir[v][1]) correct(t);
+			else incorrect(t);
+		}
+		else//si estamos con etre
+		{
+			var correctes = verbesPCEtre[v][p].split("/");//separar porque en passe compose con etre el verbo cambia segun la persona
+			var cor = false;//para saber al salir del bucle si se ha acertado o no
+			var pr = ["me ", "t'", "s'", "nous ", "vous ", "se "];
+			for(x = 0; x < correctes.length; x++)
+			{
+				if(verbesPCEtre[v][0].substring(0, 2) == "Se" || verbesPCEtre[v][0].substring(0, 2) == "S'")//si es pronominal
+				{
+					if(t == pr[p-1] + verbes[1][p] + " " + correctes[x])
+					{
+						correct(t);
+						cor = true;
+						break;
+					}
+				}
+				else
+				{
+					if(t == verbes[va][p] + " " + correctes[x])
+					{
+						correct(t);
+						cor = true;
+						break;
+					}
+				}
+			}
+			if(!cor) incorrect(t);
+		}
+		document.getElementById("t").value = "";//borrar lo escrito
+		document.getElementById("t").select();//seleccionar el input para facilitar la escritura
+		if(!document.getElementById("random").checked)//si no estamos en modo aleatorio
+		{
+			p++;//se avanza a la siguiente persona
+			if(p > 6)//si se llega a la ultima persona, se resetea la persona y se avanza al siguiente verbo
+			{
+				p = 1;
+				v++;//se avanza al siguiente verbo
+				if(va == 0)//si estamos con avoir
+				{
+					if(v > verbesPCAvoir.length-1) v = 0;//si se llega al ultimo verbo, se empieza otra vez por el primero
+				}
+				else//si estamos con etre
+				if(v > verbesPCEtre.length-1) v = 0;//si se llega al ultimo verbo, se empieza otra vez por el primero
+				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+			}
+		}
+		document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
+    }
+
+    function checkImperatif()
+    {
+		v = document.getElementById("verb").value;
+		p = document.getElementById("person").value;
+		var t = document.getElementById("t").value.toLowerCase().trim();//t es lo que ha escrito el usuario
+		//adaptar los valores de las personas del select
+		var pi;
+		if(p == 2) pi = 1;
+		if(p == 4) pi = 2;
+		if(p == 5) pi = 3;
+		if(t == verbesImperatif[v][pi]) correct(t);
+		else incorrect(t);
+		document.getElementById("t").value = "";//se borra lo escrito
+		document.getElementById("t").select();//se selecciona el input para facilitar la escritura
+		if(!document.getElementById("random").checked)//si no estamos en modo aleatorio
+		{
+			var stop = false;
+			if(p == 5)
+			{
+				p = 2;
+				v++;//se avanza al siguiente verbo
+				if(v > verbesImperatif.length-1) v = 0;//si se llega al ultimo verbo, se empieza otra vez por el primero
+					document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+				stop = true;
+			}
+			if(p == 4) p = 5;
+			if(p == 2 && !stop) p = 4;
+		}
+		document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
+    }
+	
+	function checkImparfait()
+	{
+		v = document.getElementById("verb").value;
+		p = document.getElementById("person").value;
+		var t = document.getElementById("t").value.toLowerCase().trim();//t es lo que ha escrito el usuario
+		if(t == verbesImparfait[v][p]) correct(t);
+		else incorrect(t);
+		document.getElementById("t").value = "";//se borra lo escrito
+		document.getElementById("t").select();//se selecciona el input para facilitar la escritura
+		if(!document.getElementById("random").checked)//si no estamos en modo aleatorio
+		{
+			p++;//se avanza a la siguiente persona
+			if(p > 6)//si se llega a la ultima persona, se resetea la persona y se avanza al siguiente verbo
+			{
+				p = 1;
+				v++;//se avanza al siguiente verbo
+				if(v > verbesImparfait.length-1) v = 0;//si se llega al ultimo verbo, se empieza otra vez por el primero
+				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+			}
+		}
+		document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
+	}
+
+	function correct(t)
+	{
+		points++;
+		if(points > pmax)
+		{
+			pmax = points;
+			localStorage.setItem("pmax", pmax);
+		}
+		document.getElementById("p").innerHTML = points;
+		document.getElementById("pmax").innerHTML = pmax;
+		if(pmax >= 100) document.getElementById("max").style.fontSize = "65%";
+		var c = document.getElementById("c");
+		c.innerHTML = tcorrect + "! &#9786";
+		c.style.background = "#388e3c";
+		c.style.color = "white";
+		var e1 = document.getElementById("e1");
+		e1.style.textDecoration = "none";
+		if(p == 1)
+		{
+			if((/^[aeiou]$/i).test(t.charAt(0))) e1.innerHTML ="&#10003; J'" + t;
+			else e1.innerHTML ="&#10003; Je " + t;
+		}
+		else
+		{
+			if(vtemp != 2) e1.innerHTML ="&#10003; " + document.getElementById("person").options[p-1].text + " " + t;
+			else e1.innerHTML ="&#10003; " + t;
+		}
+
+		document.getElementById("e2").innerHTML = "";
+		if(r)//si se estaba corrigiendo y es correcto, eliminar de la lista
+		{
+			//console.log("1: " + errors.length);
+			errors.splice(it, 1);
+			//actualizar los indices cada vez que se acierta un error
+			for(x = 0; x < errors.length; x++) errors[x].index = x;
+			save();
+			fillErrorsTable();
+		}
+	}
+
+	function incorrect(t)
+	{
+		points--;
+		document.getElementById("p").innerHTML = points;
+		var cs = document.getElementById("c");
+		cs.innerHTML = tincorrect + " &#9785;";
+		cs.style.background = "#d32f2f";
+		cs.style.color = "white";
+		var e1 = document.getElementById("e1");
+		e1.style.textDecoration = "line-through";
+		if(vtemp != 2) e1.innerHTML = document.getElementById("person").options[p-1].text + " " + t;
+		else e1.innerHTML = t;
+		if(vtemp == 0)//mostrar correccion en presente
+		{
+			//si el verbo empieza por vocal y la persona es je poner j'
+			if(p == 1)
+			{
+				if((/^[aeiou]$/i).test(verbes[v][p].charAt(0)))
+					i = "&#10157; J'" + verbes[v][p];
+				else
+					i = "&#10157; Je " + verbes[v][p];
+			}
+			else
+				i = "&#10157; " + document.getElementById("person").options[p-1].text + " " + verbes[v][p];
+		}
+		if(vtemp == 1)//mostrar correccion passe compose
+		{
+			if(document.getElementById("verbAux").value == 0)//si estamos con avoir
+			{
+				if(p == 1)
+				{
+					if((/^[aeiou]$/i).test(verbes[va][p].charAt(0)))
+						i = "&#10157; J'" + verbes[va][p] + " " + verbesPCAvoir[v][1];
+					else
+						i = "&#10157; Je " + verbes[va][p] + " " + verbesPCAvoir[v][1];
+				}
+				else
+					i = "&#10157; " + document.getElementById("person").options[p-1].text + " " + verbes[va][p] + " " + verbesPCAvoir[v][1];
+			}
+			else//si estamos con etre
+			{
+				if(verbesPCEtre[v][0].substring(0, 2) == "Se" || verbesPCEtre[v][0].substring(0, 2) == "S'")//si es pronominal
+				{
+					var pr = ["me ", "t'", "s'", "nous ", "vous ", "se "];
+					if(p == 1)//como en primera persona es suis siempre es je
+					{
+						i = "&#10157; Je " + pr[p-1] + verbes[va][p] + " " + verbesPCEtre[v][p];
+					}
+					else
+						i = "&#10157; " + document.getElementById("person").options[p-1].text + " " + pr[p-1] + verbes[va][p] + " " + verbesPCEtre[v][p];
+				}
+				else
+				{
+					if(p == 1)//como en primera persona es suis siempre es je
+					{
+						i = "&#10157; Je " + verbes[va][p] + " " + verbesPCEtre[v][p];
+					}
+					else
+						i = "&#10157; " + document.getElementById("person").options[p-1].text + " " + verbes[va][p] + " " + verbesPCEtre[v][p];
+				}
+			}
+		}
+		if(vtemp == 2)//mostrar la correccion en imperatif
+		{
+			var pi;
+			if(p == 2) pi = 1;
+			if(p == 4) pi = 2;
+			if(p == 5) pi = 3;
+			i = "&#10157; " + verbesImperatif[v][pi];
+		}
+		if(vtemp == 3)
+		{
+			//si el verbo empieza por vocal y la persona es je poner j'
+			if(p == 1)
+			{
+				if((/^[aeiou]$/i).test(verbesImparfait[v][p].charAt(0)))
+					i = "&#10157; J'" + verbesImparfait[v][p];
+				else
+					i = "&#10157; Je " + verbesImparfait[v][p];
+			}
+			else
+				i = "&#10157; " + document.getElementById("person").options[p-1].text + " " + verbesImparfait[v][p];
+		}
+		document.getElementById("e2").innerHTML = i;
+
+		if(!r)//si no se estaba corrigiendo y es error, añadirlo a la lista
+		{
+			var vt = vtemp;
+			if(vt != 2) var t = "<span style='text-decoration: line-through'>" + document.getElementById("person").options[p-1].text + " " + t + "</span>" + i;
+			if(vt == 2) var t = "<span style='text-decoration: line-through'>" + t + "</span>" + i;
+			if(vt == 0)
+				var e = {index:0, person:p, verbTemp:vt, vaux:-1, verb:v, cont:t};
+			if(vt == 1)
+				var e = {index:0, person:p, verbTemp:vt, vaux:va, verb:v, cont:t};
+			if(vt == 2)
+				var e = {index:0, person:p, verbTemp:vt, vaux:-1, verb:v, cont:t};
+			if(vt == 3)
+				var e = {index:0, person:p, verbTemp:vt, vaux:-1, verb:v, cont:t};
+			errors.push(e);
+			//se actualizan los indices despues de añadir los elementos
+			for(x = 0; x < errors.length; x++)
+				errors[x].index = x;
+			save();
+			fillErrorsTable();
+		}
+
+	}
+
+    function setRandomPerson()
+    {
+		var temp = p;
+		do
+		{
+			temp = Math.floor(Math.random() * (6 - 1 + 1) + 1);
+		}
+		while(temp == p);
+		p = temp;
+		if(vtemp == 2)
+		{
+			if(p == 1) p = 2;
+			if(p == 3) p = 4;
+			if(p == 6) p = 5;
+		}
+    }
+
+    function changeTemp()//cambiar el tiempo verbal
+    {
+		if(vtemp == 0)//si volvemos a presente
+		{
+			//esconder los elementos del passe compose
+			var ps = document.getElementsByClassName("passeCompose");
+			for(x = 0; x < ps.length; x++)
+				ps[x].style.display = "none";
+
+			//vaciar y rellenar el desplegable de verbos
+			var v = document.getElementById("verb");
+			for(x = v.options.length-1; x >= 0; x--)
+				v.remove(x);
+			for(x = 0; x < verbes.length; x++)
+			{
+				opt = document.createElement("option");
+				opt.text = verbes[x][0];
+				opt.value = x;
+				v.appendChild(opt);
+			}
+			//resetear la persona
+			/***/
+			resetPerson();
+			/***/
+			document.getElementById("menuPresent").style.background = "#bbdefb";
+			document.getElementById("menuPasseCompose").style.background = "white";
+			document.getElementById("menuImperatif").style.background = "white";
+			document.getElementById("menuImparfait").style.background = "white";
+			document.getElementById("t").placeholder = "Présent de l'indicatif";
+		}
+		if(vtemp == 1)//si cambiamos a passe compose
+		{
+			//mostrar los elementos extras de passe compose
+			var ps = document.getElementsByClassName("passeCompose");
+			for(x = 0; x < ps.length; x++)
+				ps[x].style.display = "inline-block";
+			//si se ha elegido no mostrar el select de passe compose, se esconder
+			if(document.getElementById("checkboxPasseCompose").checked)
+				document.getElementById("verbAux").style.display = "none";
+			//vaciar y rellenar el desplegable de verbos
+			var v = document.getElementById("verb");
+			//hay que vaciarlo de atras hacia adelante, si no no funciona
+			for(x = v.options.length-1; x >= 0; x--)
+				v.remove(x);
+			if(document.getElementById("verbAux").value == 0)//si estamos con passe compose y con avoir cargar sus verbos
+			{
+				for(x = 0; x < verbesPCAvoir.length; x++)
+				{
+					opt = document.createElement("option");
+					opt.text = verbesPCAvoir[x][0];
+					opt.value = x;
+					v.appendChild(opt);
+				}
+			}
+			else//si estamos con passe compose y etre cargar sus verbos
+			{
+				for(x = 0; x < verbesPCEtre.length; x++)
+				{
+					opt = document.createElement("option");
+					opt.text = verbesPCEtre[x][0];
+					opt.value = x;
+					v.appendChild(opt);
+				}
+			}
+			/***/
+			resetPerson();
+			/***/
+			document.getElementById("menuPresent").style.background = "white";
+			document.getElementById("menuPasseCompose").style.background = "#bbdefb";
+			document.getElementById("menuImperatif").style.background = "white";
+			document.getElementById("menuImparfait").style.background = "white";
+			document.getElementById("t").placeholder = "Passé Composé";
+		}
+		if(vtemp == 2)//si cambiamos a imperatif
+		{
+			//esconder los elementos del passe compose
+			var ps = document.getElementsByClassName("passeCompose");
+			for(x = 0; x < ps.length; x++)
+				ps[x].style.display = "none";
+
+			//vaciar y rellenar el desplegable de verbos
+			var v = document.getElementById("verb");
+			for(x = v.options.length-1; x >= 0; x--)
+				v.remove(x);
+			for(x = 0; x < verbesImperatif.length; x++)
+			{
+				opt = document.createElement("option");
+				opt.text = verbesImperatif[x][0];
+				opt.value = x;
+				v.appendChild(opt);
+			}
+			//cambiar las personas para imperatif
+			var pe = document.getElementById("person");
+			pe[0].disabled = true;
+			pe[2].disabled = true;
+			pe[5].disabled = true;
+
+			pe[1].selected = true;
+
+			document.getElementById("menuPresent").style.background = "white";
+			document.getElementById("menuPasseCompose").style.background = "white";
+			document.getElementById("menuImperatif").style.background = "#bbdefb";
+			document.getElementById("menuImparfait").style.background = "white";
+			document.getElementById("t").placeholder = "Imperatif";
+		}
+		if(vtemp == 3)//si cambiamos a imparfait
+		{
+			//esconder los elementos del passe compose
+			var ps = document.getElementsByClassName("passeCompose");
+			for(x = 0; x < ps.length; x++) ps[x].style.display = "none";
+			
+			//vaciar y rellenar el desplegable de verbos
+			var v = document.getElementById("verb");
+			for(x = v.options.length-1; x >= 0; x--)
+				v.remove(x);
+			for(x = 0; x < verbesImparfait.length; x++)
+			{
+				opt = document.createElement("option");
+				opt.text = verbesImparfait[x][0];
+				opt.value = x;
+				v.appendChild(opt);
+			}
+			/***/
+			resetPerson();
+			/***/
+			document.getElementById("menuPresent").style.background = "white";
+			document.getElementById("menuPasseCompose").style.background = "white";
+			document.getElementById("menuImperatif").style.background = "white";
+			document.getElementById("menuImparfait").style.background = "#bbdefb";
+			document.getElementById("t").placeholder = "Imparfait";
+		}
+		document.getElementById("t").select();
+    }
+
+    function checkAndroidVersion()
+    {
+      /*console.log(window.navigator.userAgent.match(/Android\s+([\d\.]+)/));*/
+      //console.log(window.navigator.userAgent);
+      if((/Android\s+([\d\.]+)/).test(window.navigator.userAgent))//si es android
+      {
+        console.log(window.navigator.userAgent.match(/Android\s+([\d\.]+)/)[0]);
+        var av = window.navigator.userAgent.match(/Android\s+([\d\.]+)/)[1];
+        av = av.split(".").join("");
+        if(av.substring(0, 2) < 43)//si la version es menor que la 4.3, aplicar estilos especificos
+        {
+          //el input
+          var inp = document.getElementById("t");
+          inp.style.background = "none";
+          inp.style.borderBottom = "1px solid #0099cc";
+          //los select de verbo y persona
+          document.getElementById("verb").style.width = "110px";
+          document.getElementById("person").style.width = "85px";
+          //la tabla de fallos
+          document.getElementById("terreurs").style.height = "45%";
+        }
+      }
+      if(window.navigator.userAgent == "frncs")//si estamos en la aplicacion de android
+      {
+        document.getElementById("menu").style.display = "none";//esconder el menu en android para usar el propio de android
+        document.getElementById("main").style.marginTop = "-10px";
+      }
+    }
+
+    function resetPerson()
+    {
+      if(vtemp != 2)//reactivar las personas por si volvemos del imperatif
+      {
+        var pe = document.getElementById("person");
+        pe[0].disabled = false;
+        pe[2].disabled = false;
+        pe[5].disabled = false;
+        p = 1;
+      }
+      else
+        p = 2;
+	  setRandomPerson();
+      document.querySelector('#person [value="' + p + '"]').selected = true;
+      translateVerbs();
+    }
+
+    function start()
+    {
+      setErrorsTableHeight();
+      translate();
+      changeTemp();
+      checkAndroidVersion();
+      read();
+    }
+
+    function translate()
+    {
+		if(navigator.language.substring(0, 2) == "es")
+		{
+			document.title = "Francés";
+			tcorrect = "Correcto";
+			tincorrect = "Incorrecto";
+			texterreurs = "Fallos:";
+			tlimpiar = "Limpiar";
+			document.getElementById("aleatoire").innerHTML = "Verbos aleatorios";
+			document.getElementById("verifier").innerHTML = "Comprobar";
+			document.getElementById("points").innerHTML = "Puntos: <span id='p'>0</span>";
+			document.getElementById("max").innerHTML = "Máximo: <span id='pmax'>0</span>";
+			document.getElementById("erreurs").caption.innerHTML = texterreurs;
+			document.getElementById("menuString1").innerHTML = "Opciones";
+			document.getElementById("menuString2").innerHTML = "Verbos francés";
+
+			document.getElementById("tempsverbaux").innerHTML = "Tiempos verbales";
+			document.getElementById("preferences").innerHTML = "Preferencias";
+			document.getElementById("mTranslations").style.display = "";
+			document.getElementById("tmTranslations").innerHTML = "Mostrar significado de los verbos";
+			document.getElementById("tmShowPasseCompose").innerHTML = "Esconder Avoir o Être en Passé Composé";
+			document.getElementById("translationRow").style.display = "";
+			
+			vtranslationsPI = [	["Tengo", "Tienes", "Tiene", "Tenemos", "Tenéis", "Tienen"],
+								["Soy, estoy", "Eres, estas", "Es, está", "Somos, estamos", "Sois, estáis", "Son, estan"],
+								["Amo", "Amas", "Ama", "Amamos", "Amáis", "Aman"],
+								["Trabajo", "Trabajas", "Trabaja", "Trabajamos", "Trabajáis", "Trabajan"],
+								["Como", "Comes", "Come", "Comemos", "Coméis", "Comen"],
+								["Comienzo", "Comienzas", "Comienza", "Comenzamos", "Comenzáis", "Comienzan"],
+								["Compro", "Compras", "Compra", "Compramos", "Compráis", "Compran"],
+								["Echo", "Echas", "Echa", "Echamos", "Echáis", "Echan"],
+								["Deletreo", "Deletreas", "Deletrea", "Deletreamos", "Deletreáis", "Deletrean"],
+								["Congelo", "Congelas", "Congela", "Congelamos", "Congeláis", "Congelan"],
+								["Prefiero", "Prefieres", "Prefiere", "Preferimos", "Preferís", "Prefieren"],
+								["Me llamo", "Te llamas", "Se llama", "Nos llamamos", "Os llamáis", "Se llaman"],
+								["Me despierto", "Te despiertas", "Se despierta", "Nos despertamos", "Os despertáis", "Se despiertan"],
+								["Termino", "Terminas", "Termina", "Terminamos", "Termináis", "Terminan"],
+								["Eligo", "Eliges", "Elige", "Elegimos", "Elegís", "Eligen"],
+								["Paso, consigo", "Pasas, consigues", "Pasa, consigue", "Pasamos, conseguimos", "Pasáis, conseguís", "Pasan, consiguen"],
+								["Voy", "Vas", "Va", "Vamos", "Váis", "Van"],
+								["Hago", "Haces", "Hace", "Hacemos", "Hacéis", "Hacen"],
+								["Digo", "Dices", "Dice", "Decimos", "Decís", "Dicen"],
+								["Abro", "Abres", "Abre", "Abrimos", "Abrís", "Abren"],
+								["Parto, marcho", "Partes, marchas", "Parte, marcha", "Partimos, marchamos", "Partís, marcháis", "Parten, marchan"],
+								["Duermo", "Duermes", "Duerme", "Dormimos", "Dormís", "Duermen"],
+								["Escribo", "Escribes", "Escribe", "Escribimos", "Escribís", "Escriben"],
+								["Leo", "Lees", "Lee", "Leemos", "Leeís", "Leen"],
+								["Respondo", "Respondes", "Responde", "Respondemos", "Respondéis", "Responden"],
+								["Pongo, coloco", "Pones, colocas", "Pone, coloca", "Ponemos, colocamos", "Ponéis, colocáis", "Ponen, colocan"],
+								["Conozco", "Conoces", "Conoce", "Conocemos", "Conocéis", "Conocen"],
+								["Veo", "Ves", "Ve", "Vemos", "Véis", "Ven"],
+								["Pinto", "Pintas", "Pinta", "Pintamos", "Pintáis", "Pintan"],
+								["Tomo, cojo", "Tomas, coges", "Toma, coge", "Tomamos, cogemos", "Tomáis, cogéis", "Toman, cogen"],
+								["Vengo", "Vienes", "Viene", "Venimos", "Venís", "Vienen"],
+								["Bebo", "Bebes", "Bebe", "Bebemos", "Bebéis", "Beben"],
+								["Recibo", "Recibes", "Recibe", "Recibimos", "Recibís", "Reciben"],
+								["Sé", "Sabes", "Sabe", "Sabemos", "Sabéis", "Saben"],
+								["Debo", "Debes", "Debe", "Debemos", "Debéis", "Deben"],
+								["Puedo", "Puedes", "Puede", "Podemos", "Podéis", "Pueden"],
+								["Quiero", "Quieres", "Quiere", "Queremos", "Queréis", "Quieren"]];
+
+			vtranslationsPCAvoir = [" comido", " nadado", " hecho", " tenido", " sido, estado", " amado",
+			" olvidado", " hablado", " dibujado", " aprendido", " elegido", " comprendido", " dicho",
+			" dormido", " escrito",  " leido", " puesto, colocado", " abierto", " podido", " tomado, cogido", " vendido",
+			" vivido", " querido"];
+			vtranslationsPCEtre = ["nacido", "muerto", "vuelto", "venido", "llegado", "subido", "entrado", "quedado",
+			"salido", "bajado", "caido", "salido, partido", "  despertado"];
+			vtranslationsImp = [["Come", "Comámos", "Comed"],
+								["Comienza", "Comencemos", "Comenzad"],
+								["Trabaja", "Trabajemos", "Trabajad"],
+								["Sonrie", "Sonriamos", "Sonreid"],
+								["Toma, coge", "Tomemos, cojamos", "Tomad, coged"],
+								["Pon, coloca", "Pongamos, coloquemos", "Poned, colocad"],
+								["Duerme", "Durmamos", "Dormid"],
+								["Piensa, cree, opina", "Pensemos, creamos, opinemos", "Pensad, creed, opinad"],
+								["Corre", "Corramos", "Corred"],
+								["Haz", "Hagamos", "Haced"],
+								["Espera", "Esperemos", "Esperad"],
+								["Despiertate", "Despertémonos", "Despertaos"],
+								["Levantate", "Levantémonos", "Levantaos"],
+								["Date prisa", "Démonos prisa", "Daos prisa"],
+								["Preparate", "Preparémonos", "Preparaos"],
+								["Afeitate", "Afeitémonos", "Afeitaos"],
+								["Duchate", "Duchémonos", "Duchaos"],
+								["Vistete", "Vistámonos", "Vestíos"],
+								["Peinate", "Peinémonos", "Peinaos"],
+								["Acuestate", "Acostémonos", "Acostaos"],];
+			vtranslationsImparfait = [	["Tenía", "Tenías", "Tenía", "Teníamos", "Teníais", "Tenían"],
+										["Era", "Eras", "Era", "Éramos", "Érais", "Eran"],
+										["Comía", "Comías", "Comía", "Comíamos", "Comíais", "Comían"],
+										["Comenzaba", "Comenzabas", "Comenzaba", "Comenzábamos", "Comenzábais", "Comenzaban"]];
+		}
+    }
+
+    function save()
+    {
+      localStorage["errors"] = JSON.stringify(errors);
+    }
+
+    function read()
+    {
+		if(localStorage.getItem("errors") != null)
+    	{
+    		errors = JSON.parse(localStorage["errors"]);
+			fillErrorsTable();
+    	}
+		if(localStorage.getItem("pmax") != null)
+		{
+			pmax = localStorage.getItem("pmax");
+			document.getElementById("pmax").innerHTML = pmax;
+		}
+		if(localStorage.getItem("translate") != null)
+		{
+			if(localStorage.getItem("translate") == "false")
+			document.getElementById("checkboxTranslations").checked = false;
+			else document.getElementById("checkboxTranslations").checked = true;
+		}
+		else
+		{
+			document.getElementById("checkboxTranslations").checked = true;
+		}
+		//despues de cargar el checkbox, mostrar o no mostrar la traduccion
+		var s = document.getElementById("translationRow");
+		if(document.getElementById("checkboxTranslations").checked)
+			//s.style.display = "block";
+			s.style.display = "";
+		else
+			s.style.display = "none";
+		//cargar la opcion de verbos aleatorios
+		if(localStorage.getItem("random") != null)
+		{
+			if(localStorage.getItem("random") == "false")
+				document.getElementById("random").checked = false;
+			else document.getElementById("random").checked = true;
+		}
+		else
+		{
+			document.getElementById("random").checked = true;
+		}
+		if(localStorage.getItem("showPCSelect") != null)
+		{
+			if(localStorage.getItem("showPCSelect") == "true")
+				document.getElementById("checkboxPasseCompose").checked = true;
+			else document.getElementById("checkboxPasseCompose").checked = false;
+		}
+    }
+
+    function fillErrorsTable()
+    {
+      //limpiar la tabla
+      var table = document.getElementById("erreurs");
+      table.innerHTML = "<caption>" + texterreurs + "<button id='cl' onclick='cl(); hideSettings();' style='float: right;'>" + tlimpiar + "</button></caption>";
+      //rellenar la tabla
+      for(x = 0; x < errors.length; x++)
+      {
+        var row = table.insertRow(0);
+        var cell = row.insertCell(0);
+        cell.innerHTML = errors[x].cont;
+        cell.setAttribute("i", errors[x].index);
+        cell.setAttribute("p", errors[x].person);//guardar la persona
+        cell.setAttribute("vt", errors[x].verbTemp);//guardar el tiempo verbal
+        cell.setAttribute("va", errors[x].vaux);//guardar la posicion del verbo auxiliar
+        cell.setAttribute("v", errors[x].verb);//guardar la posicion del verbo
+
+        cell.onclick = function()
+        {
+          //quitar los bordes de seleccion y restablecer el tamaño de fuente para que se vuelva a ver el texto
+          for(x = 0; x < document.getElementById("erreurs").getElementsByTagName("tr").length; x++)
+          {
+            document.getElementById("erreurs").rows[x].cells[0].style.border = "none";
+            document.getElementById("erreurs").rows[x].cells[0].style.fontSize = "100%";
+          }
+          //si estamos desmarcando el error...
+          if(r && this.getAttribute("i") == it)
+          {
+            this.style.border = "none";
+            it = null;
+            changeTemp();
+            r = false;
+          }
+          else//si estamos seleccionando el error
+          {
+            r = true;//marcar que se va a reintentar
+            it = this.getAttribute("i");//poner el indice general para en caso de acertar borrar la fila
+            if(this.getAttribute("vt") == 0)//si es presente
+            {
+              vtemp = this.getAttribute("vt");
+              changeTemp();
+              document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+              document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+            }
+            if(this.getAttribute("vt") == 1)//si es passe compose
+            {
+              if(this.getAttribute("va") == 0)//si es avoir
+              {
+
+                document.querySelector('#verbAux [value="' + this.getAttribute("va") + '"]').selected = true;
+                vtemp = this.getAttribute("vt");
+                changeTemp();
+                document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+                document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+              }
+              else//si es etre
+              {
+                vtemp = this.getAttribute("vt");
+                changeTemp();
+                document.querySelector('#verbAux [value="' + this.getAttribute("va") + '"]').selected = true;
+                document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+                document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+              }
+
+            }
+            if(this.getAttribute("vt") == 2)//si es imperatif
+            {
+              vtemp = this.getAttribute("vt");
+              changeTemp();
+              document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+              document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+            }
+			if(this.getAttribute("vt") == 3)//si es imparfait
+            {
+				vtemp = this.getAttribute("vt");
+				changeTemp();
+				document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+				document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+            }
+            this.style.border = "1px solid #ff5252";
+            //esconder la correccion para no poder copiar
+            this.style.fontSize = "0";
+
+            translateVerbs();
+            //ocultar la ultima correccion
+            document.getElementById("c").style.background = "#B6B6B6";
+            document.getElementById("c").innerHTML = "";
+            document.getElementById("e1").innerHTML = "";
+            document.getElementById("e2").innerHTML = "";
+          }
+        }
+      }
+    }
+
+    function cl()
+    {
+      errors.length = 0;
+      save();
+      fillErrorsTable();
+    }
+
+    function translateVerbs()
+    {
+		if(navigator.language.substring(0, 2) == "es")
+		{
+			//mostrar la traduccion del verbo
+			if(vtemp == 0)//si estamos en presente
+				document.getElementById("vtranslation").innerHTML = vtranslationsPI[document.getElementById("verb").value][(document.getElementById("person").value)-1];
+			if(vtemp == 1)//si estamos en passe compose
+			{
+				if(document.getElementById("verbAux").value == 0)//si es avoir
+				{
+					document.getElementById("vauxPC").innerHTML = vauxPC[(document.getElementById("person").value)-1];
+					document.getElementById("vtranslation").innerHTML = vtranslationsPCAvoir[document.getElementById("verb").value];
+				}
+				else//si es etre
+				{
+					if(vtranslationsPCEtre[document.getElementById("verb").value].indexOf("  ") != -1)
+						document.getElementById("vauxPC").innerHTML = vauxPronomPC[(document.getElementById("person").value)-1] + vauxPC[(document.getElementById("person").value)-1].toLowerCase();
+					else
+						document.getElementById("vauxPC").innerHTML = vauxPC[(document.getElementById("person").value)-1];
+					document.getElementById("vtranslation").innerHTML = vtranslationsPCEtre[document.getElementById("verb").value];
+				}
+			}
+			if(vtemp == 2)//si estamos en imperatif
+			{
+				var per1 = 0;
+				if(document.getElementById("person").value == 4) per1 = 1;
+				if(document.getElementById("person").value == 5) per1 = 2;
+				document.getElementById("vtranslation").innerHTML = vtranslationsImp[document.getElementById("verb").value][per1];
+			}
+			if(vtemp == 3)//si estamos en imparfait
+			{
+				document.getElementById("vtranslation").innerHTML = vtranslationsImparfait[document.getElementById("verb").value][(document.getElementById("person").value)-1];
+			}
+		}
+    }
+
+    function switchSettings()
+    {
+      var s = document.getElementById("settings");
+      if(s.style.marginLeft == "-450px" || s.style.display == "none")
+      {
+        s.style.display = "block";
+        s.className = "classShowSettingsAnimation";
+        s.style.marginLeft = "0";
+      }
+      else
+      {
+          s.className = "classHideSettingsAnimation";
+          //450px se ha cogido como valor aleatorio porque el menu ocupa menos, para esconderlo
+          //se podria poner 999px tambien, habria que cambiarlo en los ifs
+          s.style.marginLeft = "-450px";
+          document.getElementById("t").select();
+      }
+    }
+
+    function hideSettings()
+    {
+		//document.getElementById("t").select();
+		document.getElementById("settings").className = "classHideSettingsAnimation";
+	    document.getElementById("settings").style.marginLeft = "-450px";
+    }
+
+    function setPresent()
+    {
+		vtemp = 0;
+		changeTemp();
+	    hideSettings();
+		translateVerbs();
+    }
+
+    function setPasseCompose()
+    {
+		vtemp = 1;
+		changeTemp();
+	    hideSettings();
+		translateVerbs();
+    }
+
+    function setImperatif()
+    {
+		vtemp = 2;
+		changeTemp();
+		hideSettings();
+		translateVerbs();
+    }
+	
+	function setImparfait()
+	{
+		vtemp = 3;
+		changeTemp();
+		hideSettings();
+		translateVerbs();
+	}
+
+    function switchTranslations()
+    {
+      var s = document.getElementById("translationRow");
+      if(document.getElementById("checkboxTranslations").checked)
+        //s.style.display = "block";
+		s.style.display = "";
+      else
+        s.style.display = "none";
+      switchSettings();
+      localStorage.setItem("translate", document.getElementById("checkboxTranslations").checked);
+    }
+
+    function switchRandom()
+    {
+      localStorage.setItem("random", document.getElementById("random").checked);
+    }
+
+    function setErrorsTableHeight()
+    {
+      var de = document.getElementById("terreurs");
+      var dm = document.getElementById("tmain");
+      var h = window.innerHeight - dm.offsetHeight;
+      de.style.height = h - 100;
+    }
+
+    function switchPCSelect()
+    {
+        if(document.getElementById("checkboxPasseCompose").checked)
+          document.getElementById("verbAux").style.display = "none";
+        else
+        {
+          if(vtemp == 1) document.getElementById("verbAux").style.display = "block";
+        }
+      switchSettings();
+      localStorage.setItem("showPCSelect", document.getElementById("checkboxPasseCompose").checked);
+    }
+	</script>
+  <style>
+	html{
+	  overflow: hidden;
+	}
+    body{
+      font-family:'Helvetica','Arial',sans-serif;
+      margin: 0;
+	  padding-top: 8px;
+      text-align: center;
+      overflow: hidden;
+	  max-width: 100%;
+    }
+    div#settings{
+      float: left;
+      display: inline;
+      height: 100%;
+      position: fixed;
+      text-align: left;
+      background: white;
+      border-right: 1px solid grey;
+	  margin-top: -8px;
+    }
+    .classShowSettingsAnimation{
+      animation-name: showSettingsAnimation;
+      animation-duration: 0.5s;
+      -webkit-animation-name: showSettingsAnimation;
+      -webkit-animation-duration: 0.5s;
+    }
+    @keyframes showSettingsAnimation{
+      from {margin-left: -400px;}
+      to{margin-left: 0;}
+    }
+    @-webkit-keyframes showSettingsAnimation{
+      /*los porcentajes son de la pantalla no del div
+      en pixels tampoco es lo ideal, pero queda mejor
+      0%  {margin-left: -100%;}
+      20% {margin-left: -80%;}
+      40% {margin-left: -60%;}
+      60% {margin-left: -40%;}
+      80% {margin-left: -20%;}*/
+      from {margin-left: -400px;}
+      to{margin-left: 0;}
+    }
+    .classHideSettingsAnimation{
+      animation-name: hideSettingsAnimation;
+      animation-duration: 0.5s;
+      -webkit-animation-name: hideSettingsAnimation;
+      -webkit-animation-duration: 0.5s;
+    }
+    @keyframes hideSettingsAnimation{
+      from {margin-left: 0;}
+      to{margin-left: -400px;}
+    }
+    @-webkit-keyframes hideSettingsAnimation{
+      from {margin-left: 0;}
+      to{margin-left: -400px;}
+    }
+    div#settingsHeader{
+      background: #03A9F4;
+      padding: 10px;
+      color: white;
+      font-size: 125%;
+      border-bottom: 2px solid #ff5252;
+    }
+    div.mOption{
+      padding: 10px;
+    }
+    div#menu{
+      text-align: left;
+      margin-top: -8px;
+      background: #03a9f4;
+      padding: 10px;
+      color: white;
+      font-size: 125%;
+      border-bottom: 2px solid #ff5252;
+    }
+    div#menuHeader{
+      display: inline;
+    }
+    div#mPreferences{
+      border-top: 1px solid grey;
+    }
+    div#main{
+      display: inline-block;
+      margin: 0;
+      z-index: 1;
+    }
+    div#terreurs{
+      overflow-y: auto;
+      overflow-x: hidden;
+      margin: 5px;
+    }
+    button{
+      background-color: #03a9f4;
+      color: white;
+      border: 2px solid #ff5252;
+      border-radius: 15px;
+    }
+    button#verifier{
+      width: 100%;
+      height: 45px;
+      font-size: 125%;
+    }
+    button#cl{
+      margin-right: 3%;
+    }
+    table{
+      margin: 5px;
+    }
+    input#t{
+      width: 100%;
+      border: none;
+      outline: none;
+      background: bottom left linear-gradient(#0099cc, #0099cc) no-repeat, bottom center linear-gradient(#0099cc, #0099cc) repeat-x, bottom right linear-gradient(#0099cc, #0099cc) no-repeat;
+      background-size: 1px 6px, 1px 1px, 1px 6px;
+    }
+    .passeCompose{
+      display: none;
+      float: left;
+    }
+    td#c{
+      background-color: #B6B6B6;
+      border-radius: 15px;
+    }
+    table#erreurs{
+      width: 100%;
+      text-align: center;
+      margin-left: 0;
+    }
+    table#erreurs td{
+      background-color: #B6B6B6;
+      border-radius: 15px;
+      height: 45px;
+    }
+	#info
+	{
+		float: right;
+		margin: -10px -10px 0 0;
+		padding: 9px;
+	}
+	#infoSVG
+	{
+		margin: -10px -10px 0 0;
+		padding: 14px 14px 9px 14px;
+	}
+    @media (max-width: 600px) {
+      table{
+        width: 97%;
+      }
+      select:not([id=temp]){
+        width: 100%;
+      }
+      select#person{
+        width: auto;
+      }
+      div#settings{
+        max-width: 90%;
+      }
+	  td#points
+	  {
+		font-size: 75%;
+	  }
+	  td#max
+	  {
+		font-size: 75%;
+	  }
+    }
+  </style>
+  </head>
+  <body onload="start()">
+  <div id="settings" style="display: none;">
+    <div id="settingsHeader" onclick="switchSettings()">
+		<svg id="back" width="18" height="19" >
+			<path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"  fill="#ffffff"/>
+		</svg>
+		<span id="menuString1">Options</span>
+    </div>
+	<div id="mVerbsTempaux" class="mOption">
+      <i><span id="tempsverbaux">Verbal tenses</span></i>
+    </div>
+    <div id="menuPresent" class="mOption" onclick="setPresent()">
+      Présent de l'indicatif
+    </div>
+    <div id="menuPasseCompose" class="mOption" onclick="setPasseCompose()">
+      Passé Composé
+    </div>
+    <div id="menuImperatif" class="mOption" onclick="setImperatif()">
+      Imperatif
+    </div>
+	<div id="menuImparfait" class="mOption" onclick="setImparfait()">
+      Imparfait
+    </div>
+    <div id="mPreferences" class="mOption">
+      <i><span id="preferences">Preferences</span></i>
+    </div>
+    <div id="mRandom" class="mOption">
+      <input type="checkbox" id="random" onchange="switchRandom(); switchSettings();"/>
+      <span id="aleatoire">Random verbs</span>
+    </div>
+    <div id="mTranslations" class="mOption" style="display: none;">
+      <input type="checkbox" id="checkboxTranslations" onchange="switchTranslations()"/>
+      <span id="tmTranslations"></span>
+    </div>
+    <div class="mOption">
+      <input type="checkbox" id="checkboxPasseCompose" onchange="switchPCSelect()"/>
+      <span id="tmShowPasseCompose">Hide Avoir or Être in Passé Composé</span>
+    </div>
+  </div>
+  <div id="menu">
+    <div id="menuHeader" onclick="switchSettings()">
+		<svg id="navicon" width="18" height="13">
+			<rect x="0" y="0" width="18" height="2" fill="#ffffff"/>
+			<rect x="0" y="5" width="18" height="2" fill="#ffffff"/>
+			<rect x="0" y="10" width="18" height="2" fill="#ffffff"/>
+		</svg>
+		<!--&#9776;-->
+		<span id="menuString2">French verbs</span>
+    </div>
+	<div id="info">
+		<a href="./about.html">
+		<svg id="infoSVG" width="20" height="20">
+			<circle cx="10" cy="10" r="9" stroke="#ffffff" stroke-width="2" fill="#03A9F4"/>
+			<rect x="9" y="9" width="2" height="6" fill="#ffffff"/>
+			<circle cx="10" cy="6" r="1" fill="#ffffff"/>
+		</svg>
+		</a>
+	</div>
+  </div>
+  <div id="main">
+    <table id="tmain">
+    <tr>
+	  <td>
+        <select id="person" onclick="hideSettings(); translateVerbs();">
+          <option value="1">J&#39; / Je</option>
+          <option value="2">Tu</option>
+          <option value="3">Il / Elle<!-- / On--></option>
+          <option value="4">Nous</option>
+          <option value="5">Vous</option>
+          <option value="6">Ils / Elles</option>
+        </select>
+      </td>
+      <td>
+        <select id="verbAux" class="passeCompose" onchange="changeTemp(); translateVerbs();" onclick=" hideSettings()">
+          <option value="0">Avoir</option>
+          <option value="1">Être</option>
+        </select>
+        <select id="verb" onchange="resetPerson()" onclick="hideSettings()">
+        </select>
+      </td>
+      <td style="white-space: nowrap;">
+        <input type="text" id="t" onkeydown="if (event.keyCode == 13) check()" onclick="this.select(); hideSettings();" />
+      </td>
+    </tr>
+    <tr>
+      <td colspan="3" id="translationRow" style="display: none;">
+        <span id="vauxPC" class="passeCompose" style="font-style: italic; font-size: small; float: none;"></span>
+        <span id="vtranslation" style="font-style: italic; font-size: small;"></span>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="3"><button id="verifier" onclick="check(); hideSettings();">Check</button></td>
+    </tr>
+    <tr>
+      <td align="center" id="points">Points: <span id="p">0</span></td>
+      <td rowspan="2" id="c" align="center"></td>
+      <td rowspan="2" align="center" style="background-color: #B6B6B6; border-radius: 15px;"><span id="e1"></span><span id="e2"></span></td>
+    </tr>
+    <tr>
+      <td align="center" id="max">Maximum: <span id="pmax">0</span></td>
+    </tr>
+    </table>
+    <div id="terreurs">
+      <table id="erreurs">
+        <caption>Mistakes:</caption>
+      </table>
+    </div>
+  </div>
+  </body>
+</html>

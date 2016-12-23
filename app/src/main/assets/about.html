@@ -1,0 +1,215 @@
+<html>
+	<head>
+		<title>About</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+		<style>
+			body
+			{
+				margin: 0;
+				text-align:center;
+				font-family:sans-serif;
+			}
+			div#titleBar
+			{
+				background:#03A9F4;
+				text-align: left;
+				padding: 10px;
+				color: white;
+				font-size: 125%;
+				position: fixed;
+				width: 100%;
+				border-bottom: 2px solid #ff5252;
+				margin-top: -100px;
+			}
+			a.button
+			{
+				text-decoration: none;
+			}
+			svg
+			{
+				float: left;
+				padding: 12px;
+				margin: -10px 2px 0 -10px;
+			}
+			div#tabs
+			{
+				margin-top: -54px;
+				position: fixed;
+				width: 100%;
+				background: #ffffff;
+				box-shadow: 0 0 2px grey;
+			}
+			h5
+			{
+				margin-top: -20px;
+				color: grey;
+			}
+			h2
+			{
+				margin-top: 10px;
+			}
+			p
+			{
+				text-align: justify;
+				padding: 10px;
+				margin-top: -15px;
+			}
+			p.inf
+			{
+				text-align: left;
+				padding: 2px 10px 0 10px;
+			}
+			div.tab
+			{
+				width: 50%;
+				float: left;
+				padding: 7px 0 7px 0;
+			}
+			div#information
+			{
+				margin-top: 100px;
+			}
+			div#about
+			{
+				margin-top: 100px;
+			}
+			img.i
+			{
+				box-shadow: 5px 5px 5px grey;
+			}
+			@media (max-width: 320px) {
+				img.i
+				{
+					margin-bottom: 5px;
+					width: 90%;
+				}
+			}
+		</style>
+	</head>
+	<body onload="start()">
+		<div id="titleBar">
+			<a href="./frncs.html" class="button">
+				<svg id="back" width="18" height="19">
+					<path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"  fill="#ffffff"/>
+				</svg>
+			</a>
+			<!--&#9776;-->
+			<span id="title">About</span>
+		</div>
+		<div id="tabs">
+			<div id="informationTab" class="tab" style="border-bottom: 2px solid #FF5252;" onclick="switchTab()">Información</div>
+			<div id="aboutTab" class="tab" onclick="switchTab()">Acerca de</div>
+		</div>
+		<div id="information">
+			<div>
+				<b>Explicación</b><br><br>
+				<p class="inf">El uso de la aplicación consiste en ir introduciendo los verbos correspondientes a la persona y verbo mostrados.</p>
+				<p class="inf">Si se acierta se suma un punto, si se falla se resta un punto y se añade a la lista de errores.</p>
+				<p class="inf">Pulsando sobre un error, permite volver a intentarlo. La aplicación guarda la puntuación máxima y los errores.</p>
+			</div>
+			<hr>
+			<b id="info5">Pantalla principal</b><br><br>
+			<div>
+				<img src="./1.png" class="i"/><br><br>
+				<p class="inf"><b style="color: #ff5252">1</b> Despliega el menú de opciones</p>
+				<p class="inf"><b style="color: #ff5252">2</b> Muestra la información de la aplicación</p>
+			</div>
+			<div>
+				<img src="./2.png" class="i"/><br><br>
+				<p class="inf"><b style="color: #ff5252">1</b> Desplegable de personas</p>
+				<p class="inf"><b style="color: #ff5252">2</b> Desplegable de verbos</p>
+				<p class="inf"><b style="color: #ff5252">3</b> Zona donde escribir el verbo (si se pulsa 
+					<span style="background: #D3D3D3; border-radius: 5px; padding: 2px;">Intro &#8629;</span>
+					después de escribir el verbo, se comprueba directamente sin necesidad de pulsar el botón Comprobar)</p>
+				<p class="inf"><b style="color: #ff5252">4</b> Traducción</p>
+				<p class="inf"><b style="color: #ff5252">5</b> Comprueba si el verbo escrito es correcto</p>
+			</div>
+			<div>
+				<img src="./3.png" class="i"/><br><br>
+				<p class="inf"><b style="color: #ff5252">1</b> Puntuación</p>
+				<p class="inf"><b style="color: #ff5252">2</b> Muestra si el verbo es correcto o incorrecto</p>
+			</div>
+			<div>
+				<img src="./4.png" class="i"/><br><br>
+				<p class="inf"><b style="color: #ff5252">1</b> Limpia la lista de errores</p>
+				<p class="inf"><b style="color: #ff5252">2</b> Si se pulsa sobre un error se puede volver a intentar</p>
+			</div>
+			<hr>
+			<b id="info18">Opciones</b><br><br>
+			<div>
+				<img src="./5.png" class="i"/><br><br>
+				<p class="inf"><b style="color: #ff5252">*</b> Se puede seleccionar el tiempo verbal pulsando sobre cada uno</p>
+			</div>
+			<div>
+				<img src="./6.png" class="i"/><br><br>
+				<p class="inf"><b style="color: #ff5252">1</b> Mostrar los verbos aleatoriamente</p>
+				<p class="inf"><b style="color: #ff5252">2</b> Mostrar la traducción de los verbos</p>
+				<p class="inf"><b style="color: #ff5252">3</b> En el caso de Passé Composé, esconder el verbo auxiliar para hacerlo más difícil</p>
+			</div>
+		</div>
+		<div id="about" style="display: none">
+			<img src="./logo.png" />
+			<h2 id="appName">French verbs</h2>
+			<h5><i>Version: 1.15</i></h5>
+			<h5><a href="https://github.com/beriain/VerbosFrances">https://github.com/beriain/VerbosFrances</a></h5>
+			<p>This program is free software: you can redistribute it and/or modify
+			it under the terms of the GNU General Public License as published by
+			the Free Software Foundation, either version 3 of the License, or
+			(at your option) any later version.</p>
+
+			<p>This program is distributed in the hope that it will be useful,
+			but WITHOUT ANY WARRANTY; without even the implied warranty of
+			MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+			GNU General Public License for more details.</p>
+
+			<p>You should have received a copy of the GNU General Public License
+			along with this program.  If not, see <a href="http://www.gnu.org/licenses">http://www.gnu.org/licenses</a>.</p>
+		</div>
+		<script>			
+			function switchTab()
+			{
+				if(document.getElementById("information").style.display == "none")
+				{
+					document.getElementById("about").style.display = "none";
+					document.getElementById("information").style.display = "block";
+					document.getElementById("aboutTab").style.borderBottom = "none";
+					document.getElementById("informationTab").style.borderBottom = "2px solid #FF5252";
+				}
+				else
+				{
+					document.getElementById("about").style.display = "block";
+					document.getElementById("information").style.display = "none";
+					document.getElementById("aboutTab").style.borderBottom = "2px solid #FF5252";
+					document.getElementById("informationTab").style.borderBottom = "none";
+				}
+			}
+			
+			function start()
+			{
+				if(navigator.language.substring(0, 2) != "es")
+				{
+					switchTab();
+					//document.getElementById("informationTab").style.display = "none";
+					//document.getElementById("aboutTab").style.width = "100%";
+					document.getElementById("tabs").style.display = "none";
+					document.getElementById("tabs").style.pointerEvents = "none";
+					document.getElementById("titleBar").style.height = "25px";
+					document.getElementById("titleBar").style.marginTop = "-61px";
+					document.getElementById("about").style.marginTop = "60px";
+				}
+				else
+				{
+					document.title = "Acerca de";
+					document.getElementById("title").innerHTML = "Acerca de";
+					document.getElementById("appName").innerHTML = "Verbos francés";
+				}
+			}
+			
+			function goBack()
+			{
+				window.location.href = "./frncs.html";
+			}
+		</script>
+	</body>
+</html>
