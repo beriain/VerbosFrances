@@ -61,6 +61,8 @@
     var vtranslationsPCEtre = new Array();//para el significado de los verbos en passe compose y etre en cada idioma
     var vtranslationsImp = new Array();//para el significado de los verbos en imperatif en cada idioma
 	var vtranslationsImparfait = new Array();//para el significado de los verbos en imperatif en cada idioma
+	var vtranslationsFuturSimple = new Array();//para el significado de los verbos en futur simple en cada idioma
+	var vtranslationsConditionnel = new Array();//para el significado de los verbos en conditionnel en cada idioma
 	var vauxPronomPC = ["Me ", "Te ", "Se ", "Nos ", "Os ", "Se "];
     var vauxPC = ["He ", "Has ", "Ha ", "Hemos ", "Habéis ", "Han "];
     var i = "";//variable para mostrar la correccion
@@ -165,6 +167,16 @@
 							["Être", "étais", "étais", "était", "étions", "étiez", "étaient"],
 							["Manger", "mangeais", "mangeais", "mangeais", "mangions", "mangiez", "mangeaient"],
 							["Commencer", "commençais", "commençais", "commençait", "commencions", "commenciez", "commençaient"]];
+							
+	var verbesFuturSimple = [["Aimer", "aimerai", "aimeras", "aimera", "aimerons", "aimerez", "aimeront"],
+							 ["Avoir", "aurai", "auras", "aura", "aurons", "aurez", "auront"],
+							 ["Être", "serai", "seras", "sera", "serons", "serez", "seront"],
+							 ["Lire", "lirai", "liras", "lira", "lirons", "lirez", "liront"]];
+							 
+	var verbesConditionnel = [["Aimer", "aimerais", "aimerais", "aimerait", "aimerions", "aimeriez", "aimeraient"],
+							 ["Avoir", "aurais", "aurais", "aurait", "aurions", "auriez", "auraient"],
+							 ["Être", "serais", "serais", "serait", "serions", "seriez", "seraient"],
+							 ["Lire", "lirais", "lirais", "lirait", "lirions", "liriez", "liraient"]];
 
 	function check()
 	{
@@ -172,6 +184,8 @@
 		if(vtemp == 1) checkPasse();
 		if(vtemp == 2) checkImperatif();
 		if(vtemp == 3) checkImparfait();
+		if(vtemp == 4) checkFuturSimple();
+		if(vtemp == 5) checkConditionnel();
 		
 		r = false;//ya no es reintento
 		//quitar los bordes de seleccion y restablecer el tamaño de fuente
@@ -184,11 +198,11 @@
 		//si el tiempo verbal es aleatorio
 		if(document.getElementById("random").checked)
 		{
-			//vtemp = Math.round(Math.random());
-			vtemp = (Math.floor(Math.random() * 4) + 1) - 1;
+			//6 -> numero de verbos
+			vtemp = (Math.floor(Math.random() * 6) + 1) - 1;
 			if(vtemp == 0)
 			{
-				setPresent();
+				setVerbalTense(0);
 				setRandomPerson();
 				v = Math.floor(Math.random() * ((verbes.length-1) - 0 + 1)) + 0;
 				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
@@ -198,7 +212,7 @@
 			}
 			if(vtemp == 1)
 			{
-				setPasseCompose();
+				setVerbalTense(1);
 				setRandomPerson();
 				va = Math.round(Math.random());
 				if(va == 0)//si estamos con avoir
@@ -214,21 +228,36 @@
 			}
 			if(vtemp == 2)
 			{
-				setImperatif();
+				setVerbalTense(2);
 				setRandomPerson();
 				v = Math.floor(Math.random() * ((verbesImperatif.length-1) - 0 + 1)) + 0;
 				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
 			}
 			if(vtemp == 3)
 			{
-				setImparfait();
+				setVerbalTense(3);
 				setRandomPerson();
 				v = Math.floor(Math.random() * ((verbesImparfait.length-1) - 0 + 1)) + 0;
+				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+			}
+			if(vtemp == 4)
+			{
+				setVerbalTense(4);
+				setRandomPerson();
+				v = Math.floor(Math.random() * ((verbesFuturSimple.length-1) - 0 + 1)) + 0;
+				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+			}
+			if(vtemp == 5)
+			{
+				setVerbalTense(5);
+				setRandomPerson();
+				v = Math.floor(Math.random() * ((verbesConditionnel.length-1) - 0 + 1)) + 0;
 				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
 			}
 			document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
 		}
 		translateVerbs();
+		document.getElementById("verbalTense").value = vtemp;
 	}
 
     function checkPresent()
@@ -367,6 +396,52 @@
 		}
 		document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
 	}
+	
+	function checkFuturSimple()
+	{
+		v = document.getElementById("verb").value;
+		p = document.getElementById("person").value;
+		var t = document.getElementById("t").value.toLowerCase().trim();//t es lo que ha escrito el usuario
+		if(t == verbesFuturSimple[v][p]) correct(t);
+		else incorrect(t);
+		document.getElementById("t").value = "";//se borra lo escrito
+		document.getElementById("t").select();//se selecciona el input para facilitar la escritura
+		if(!document.getElementById("random").checked)//si no estamos en modo aleatorio
+		{
+			p++;//se avanza a la siguiente persona
+			if(p > 6)//si se llega a la ultima persona, se resetea la persona y se avanza al siguiente verbo
+			{
+				p = 1;
+				v++;//se avanza al siguiente verbo
+				if(v > verbesFuturSimple.length-1) v = 0;//si se llega al ultimo verbo, se empieza otra vez por el primero
+				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+			}
+		}
+		document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
+	}
+	
+	function checkConditionnel()
+	{
+		v = document.getElementById("verb").value;
+		p = document.getElementById("person").value;
+		var t = document.getElementById("t").value.toLowerCase().trim();//t es lo que ha escrito el usuario
+		if(t == verbesConditionnel[v][p]) correct(t);
+		else incorrect(t);
+		document.getElementById("t").value = "";//se borra lo escrito
+		document.getElementById("t").select();//se selecciona el input para facilitar la escritura
+		if(!document.getElementById("random").checked)//si no estamos en modo aleatorio
+		{
+			p++;//se avanza a la siguiente persona
+			if(p > 6)//si se llega a la ultima persona, se resetea la persona y se avanza al siguiente verbo
+			{
+				p = 1;
+				v++;//se avanza al siguiente verbo
+				if(v > verbesConditionnel.length-1) v = 0;//si se llega al ultimo verbo, se empieza otra vez por el primero
+				document.querySelector('#verb [value="' + v + '"]').selected = true;//ademas del indice interno hay que avanzar el desplegable tambien
+			}
+		}
+		document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
+	}
 
 	function correct(t)
 	{
@@ -478,7 +553,7 @@
 			if(p == 5) pi = 3;
 			i = "&#10157; " + verbesImperatif[v][pi];
 		}
-		if(vtemp == 3)
+		if(vtemp == 3)//mostrar la correccion en imparfait
 		{
 			//si el verbo empieza por vocal y la persona es je poner j'
 			if(p == 1)
@@ -490,6 +565,32 @@
 			}
 			else
 				i = "&#10157; " + document.getElementById("person").options[p-1].text + " " + verbesImparfait[v][p];
+		}
+		if(vtemp == 4)//mostrar la correccion en futur simple
+		{
+			//si el verbo empieza por vocal y la persona es je poner j'
+			if(p == 1)
+			{
+				if((/^[aeiou]$/i).test(verbesFuturSimple[v][p].charAt(0)))
+					i = "&#10157; J'" + verbesFuturSimple[v][p];
+				else
+					i = "&#10157; Je " + verbesFuturSimple[v][p];
+			}
+			else
+				i = "&#10157; " + document.getElementById("person").options[p-1].text + " " + verbesFuturSimple[v][p];
+		}
+		if(vtemp == 5)//mostrar la correccion en conditionnel
+		{
+			//si el verbo empieza por vocal y la persona es je poner j'
+			if(p == 1)
+			{
+				if((/^[aeiou]$/i).test(verbesConditionnel[v][p].charAt(0)))
+					i = "&#10157; J'" + verbesConditionnel[v][p];
+				else
+					i = "&#10157; Je " + verbesConditionnel[v][p];
+			}
+			else
+				i = "&#10157; " + document.getElementById("person").options[p-1].text + " " + verbesConditionnel[v][p];
 		}
 		document.getElementById("e2").innerHTML = i;
 
@@ -505,6 +606,10 @@
 			if(vt == 2)
 				var e = {index:0, person:p, verbTemp:vt, vaux:-1, verb:v, cont:t};
 			if(vt == 3)
+				var e = {index:0, person:p, verbTemp:vt, vaux:-1, verb:v, cont:t};
+			if(vt == 4)
+				var e = {index:0, person:p, verbTemp:vt, vaux:-1, verb:v, cont:t};
+			if(vt == 5)
 				var e = {index:0, person:p, verbTemp:vt, vaux:-1, verb:v, cont:t};
 			errors.push(e);
 			//se actualizan los indices despues de añadir los elementos
@@ -557,11 +662,7 @@
 			/***/
 			resetPerson();
 			/***/
-			document.getElementById("menuPresent").style.background = "#bbdefb";
-			document.getElementById("menuPasseCompose").style.background = "white";
-			document.getElementById("menuImperatif").style.background = "white";
-			document.getElementById("menuImparfait").style.background = "white";
-			document.getElementById("t").placeholder = "Présent de l'indicatif";
+			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[0].text;
 		}
 		if(vtemp == 1)//si cambiamos a passe compose
 		{
@@ -600,11 +701,7 @@
 			/***/
 			resetPerson();
 			/***/
-			document.getElementById("menuPresent").style.background = "white";
-			document.getElementById("menuPasseCompose").style.background = "#bbdefb";
-			document.getElementById("menuImperatif").style.background = "white";
-			document.getElementById("menuImparfait").style.background = "white";
-			document.getElementById("t").placeholder = "Passé Composé";
+			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[1].text;
 		}
 		if(vtemp == 2)//si cambiamos a imperatif
 		{
@@ -632,11 +729,7 @@
 
 			pe[1].selected = true;
 
-			document.getElementById("menuPresent").style.background = "white";
-			document.getElementById("menuPasseCompose").style.background = "white";
-			document.getElementById("menuImperatif").style.background = "#bbdefb";
-			document.getElementById("menuImparfait").style.background = "white";
-			document.getElementById("t").placeholder = "Imperatif";
+			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[2].text;
 		}
 		if(vtemp == 3)//si cambiamos a imparfait
 		{
@@ -658,11 +751,51 @@
 			/***/
 			resetPerson();
 			/***/
-			document.getElementById("menuPresent").style.background = "white";
-			document.getElementById("menuPasseCompose").style.background = "white";
-			document.getElementById("menuImperatif").style.background = "white";
-			document.getElementById("menuImparfait").style.background = "#bbdefb";
-			document.getElementById("t").placeholder = "Imparfait";
+			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[3].text;
+		}
+		if(vtemp == 4)//si cambiamos a futur simple
+		{
+			//esconder los elementos del passe compose
+			var ps = document.getElementsByClassName("passeCompose");
+			for(x = 0; x < ps.length; x++) ps[x].style.display = "none";
+			
+			//vaciar y rellenar el desplegable de verbos
+			var v = document.getElementById("verb");
+			for(x = v.options.length-1; x >= 0; x--)
+				v.remove(x);
+			for(x = 0; x < verbesFuturSimple.length; x++)
+			{
+				opt = document.createElement("option");
+				opt.text = verbesFuturSimple[x][0];
+				opt.value = x;
+				v.appendChild(opt);
+			}
+			/***/
+			resetPerson();
+			/***/
+			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[4].text;
+		}
+		if(vtemp == 5)//si cambiamos a conditionnel
+		{
+			//esconder los elementos del passe compose
+			var ps = document.getElementsByClassName("passeCompose");
+			for(x = 0; x < ps.length; x++) ps[x].style.display = "none";
+			
+			//vaciar y rellenar el desplegable de verbos
+			var v = document.getElementById("verb");
+			for(x = v.options.length-1; x >= 0; x--)
+				v.remove(x);
+			for(x = 0; x < verbesConditionnel.length; x++)
+			{
+				opt = document.createElement("option");
+				opt.text = verbesConditionnel[x][0];
+				opt.value = x;
+				v.appendChild(opt);
+			}
+			/***/
+			resetPerson();
+			/***/
+			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[5].text;
 		}
 		document.getElementById("t").select();
     }
@@ -678,7 +811,7 @@
         av = av.split(".").join("");
         if(av.substring(0, 2) < 43)//si la version es menor que la 4.3, aplicar estilos especificos
         {
-          //el input
+          //input
           var inp = document.getElementById("t");
           inp.style.background = "none";
           inp.style.borderBottom = "1px solid #0099cc";
@@ -720,6 +853,12 @@
       changeTemp();
       checkAndroidVersion();
       read();
+	  //479.5 = settings height (header(433.5) + elements (46))
+	  if(window.innerHeight <= 480)
+	  {
+		document.getElementById("settingsElements").style.maxHeight = window.innerHeight - 46 + "px";
+		document.getElementById("settingsElements").style.overflowY = "scroll";
+	  }
     }
 
     function translate()
@@ -738,8 +877,9 @@
 			document.getElementById("erreurs").caption.innerHTML = texterreurs;
 			document.getElementById("menuString1").innerHTML = "Opciones";
 			document.getElementById("menuString2").innerHTML = "Verbos francés";
+			document.getElementById("issues").innerHTML = "Sugerencias, errores, etc";
 
-			document.getElementById("tempsverbaux").innerHTML = "Tiempos verbales";
+			document.getElementById("tempsverbaux").innerHTML = "Tiempo verbal";
 			document.getElementById("preferences").innerHTML = "Preferencias";
 			document.getElementById("mTranslations").style.display = "";
 			document.getElementById("tmTranslations").innerHTML = "Mostrar significado de los verbos";
@@ -814,6 +954,14 @@
 										["Era", "Eras", "Era", "Éramos", "Érais", "Eran"],
 										["Comía", "Comías", "Comía", "Comíamos", "Comíais", "Comían"],
 										["Comenzaba", "Comenzabas", "Comenzaba", "Comenzábamos", "Comenzábais", "Comenzaban"]];
+			vtranslationsFuturSimple = [["Amaré", "Amarás", "Amará", "Amaremos", "Amaréis", "Amarán"],
+										["Tendré", "Tendrás", "Tendrá", "Tendrémos", "Tendréis", "Tendrán"],
+										["Seré", "Serás", "Será", "Serémos", "Seréis", "Serán"],
+										["Leeré", "Leerás", "Leerá", "Leerémos", "Leeréis", "Leerán"]];
+			vtranslationsConditionnel = [["Amaría", "Amarías", "Amaría", "Amaríamos", "Amaríais", "Amarían"],
+										["Tendría", "Tendrías", "Tendría", "Tendríamos", "Tendríais", "Tendrían"],
+										["Sería", "Serías", "Sería", "Seríamos", "Seríais", "Serían"],
+										["Leería", "Leerías", "Leería", "Leeríamos", "Leeríais", "Leerían"]];
 		}
     }
 
@@ -949,6 +1097,20 @@
 				document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
 				document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
             }
+			if(this.getAttribute("vt") == 4)//futur simple
+            {
+				vtemp = this.getAttribute("vt");
+				changeTemp();
+				document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+				document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+            }
+			if(this.getAttribute("vt") == 5)//conditionnel
+            {
+				vtemp = this.getAttribute("vt");
+				changeTemp();
+				document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+				document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+            }
             this.style.border = "1px solid #ff5252";
             //esconder la correccion para no poder copiar
             this.style.fontSize = "0";
@@ -1005,6 +1167,14 @@
 			{
 				document.getElementById("vtranslation").innerHTML = vtranslationsImparfait[document.getElementById("verb").value][(document.getElementById("person").value)-1];
 			}
+			if(vtemp == 4)//futur simple
+			{
+				document.getElementById("vtranslation").innerHTML = vtranslationsFuturSimple[document.getElementById("verb").value][(document.getElementById("person").value)-1];
+			}
+			if(vtemp == 5)//conditionnel
+			{
+				document.getElementById("vtranslation").innerHTML = vtranslationsConditionnel[document.getElementById("verb").value][(document.getElementById("person").value)-1];
+			}
 		}
     }
 
@@ -1033,38 +1203,6 @@
 		document.getElementById("settings").className = "classHideSettingsAnimation";
 	    document.getElementById("settings").style.marginLeft = "-450px";
     }
-
-    function setPresent()
-    {
-		vtemp = 0;
-		changeTemp();
-	    hideSettings();
-		translateVerbs();
-    }
-
-    function setPasseCompose()
-    {
-		vtemp = 1;
-		changeTemp();
-	    hideSettings();
-		translateVerbs();
-    }
-
-    function setImperatif()
-    {
-		vtemp = 2;
-		changeTemp();
-		hideSettings();
-		translateVerbs();
-    }
-	
-	function setImparfait()
-	{
-		vtemp = 3;
-		changeTemp();
-		hideSettings();
-		translateVerbs();
-	}
 
     function switchTranslations()
     {
@@ -1102,6 +1240,14 @@
       switchSettings();
       localStorage.setItem("showPCSelect", document.getElementById("checkboxPasseCompose").checked);
     }
+	
+	function setVerbalTense(x)
+	{
+		vtemp = x;
+		changeTemp();
+	    hideSettings();
+		translateVerbs();
+	}
 	</script>
   <style>
 	html{
@@ -1123,7 +1269,6 @@
       text-align: left;
       background: white;
       border-right: 1px solid grey;
-	  margin-top: -8px;
     }
     .classShowSettingsAnimation{
       animation-name: showSettingsAnimation;
@@ -1181,9 +1326,6 @@
     }
     div#menuHeader{
       display: inline;
-    }
-    div#mPreferences{
-      border-top: 1px solid grey;
     }
     div#main{
       display: inline-block;
@@ -1248,6 +1390,22 @@
 		margin: -10px -10px 0 0;
 		padding: 14px 14px 9px 14px;
 	}
+	select#verbalTense{
+		height: 40px;
+		width: auto;
+		font-family: Arial;
+		font-size: 100%;
+		background: white;
+		border: 1px solid #ff5252;
+		border-radius:5px;
+		margin: 0 5px 0 5px;
+	}
+	div#settingsFooter{
+		border-top: 1px solid grey;
+		position: absolute;
+		bottom: 0;
+		width:100%;
+	}
     @media (max-width: 600px) {
       table{
         width: 97%;
@@ -1269,6 +1427,10 @@
 	  {
 		font-size: 75%;
 	  }
+	  div#main
+	  {
+		display:block;
+	  }
     }
   </style>
   </head>
@@ -1280,36 +1442,38 @@
 		</svg>
 		<span id="menuString1">Options</span>
     </div>
-	<div id="mVerbsTempaux" class="mOption">
-      <i><span id="tempsverbaux">Verbal tenses</span></i>
-    </div>
-    <div id="menuPresent" class="mOption" onclick="setPresent()">
-      Présent de l'indicatif
-    </div>
-    <div id="menuPasseCompose" class="mOption" onclick="setPasseCompose()">
-      Passé Composé
-    </div>
-    <div id="menuImperatif" class="mOption" onclick="setImperatif()">
-      Imperatif
-    </div>
-	<div id="menuImparfait" class="mOption" onclick="setImparfait()">
-      Imparfait
-    </div>
-    <div id="mPreferences" class="mOption">
-      <i><span id="preferences">Preferences</span></i>
-    </div>
-    <div id="mRandom" class="mOption">
-      <input type="checkbox" id="random" onchange="switchRandom(); switchSettings();"/>
-      <span id="aleatoire">Random verbs</span>
-    </div>
-    <div id="mTranslations" class="mOption" style="display: none;">
-      <input type="checkbox" id="checkboxTranslations" onchange="switchTranslations()"/>
-      <span id="tmTranslations"></span>
-    </div>
-    <div class="mOption">
-      <input type="checkbox" id="checkboxPasseCompose" onchange="switchPCSelect()"/>
-      <span id="tmShowPasseCompose">Hide Avoir or Être in Passé Composé</span>
-    </div>
+	<div id="settingsElements">
+		<div id="mVerbsTempaux" class="mOption">
+		  <i><span id="tempsverbaux">Verbal tense</span></i>
+		</div>
+		<select id="verbalTense" onchange="setVerbalTense(this.value)">
+          <option value="0">Présent de l'indicatif</option>
+          <option value="1">Passé Composé</option>
+          <option value="2">Impératif</option>
+          <option value="3">Imparfait</option>
+          <option value="4">Futur Simple</option>
+          <option value="5">Conditionnel</option>
+        </select>
+		<div id="mPreferences" class="mOption">
+		  <i><span id="preferences">Preferences</span></i>
+		</div>
+		<div id="mRandom" class="mOption">
+		  <input type="checkbox" id="random" onchange="switchRandom(); switchSettings();"/>
+		  <span id="aleatoire">Random verbs</span>
+		</div>
+		<div id="mTranslations" class="mOption" style="display: none;">
+		  <input type="checkbox" id="checkboxTranslations" onchange="switchTranslations()"/>
+		  <span id="tmTranslations"></span>
+		</div>
+		<div class="mOption">
+		  <input type="checkbox" id="checkboxPasseCompose" onchange="switchPCSelect()"/>
+		  <span id="tmShowPasseCompose">Hide Avoir or Être in Passé Composé</span>
+		</div>
+	</div>
+	<div id="settingsFooter">
+		&#9993;&#9888;&#8230;
+		<a href="https://github.com/beriain/VerbosFrances/issues"><span id="issues">Suggestion, bugs, etc</span><a/>
+	</div>
   </div>
   <div id="menu">
     <div id="menuHeader" onclick="switchSettings()">
