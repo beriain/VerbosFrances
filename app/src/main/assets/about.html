@@ -78,6 +78,10 @@
 			{
 				box-shadow: 5px 5px 5px grey;
 			}
+			.number
+			{
+				color: #ff5252;
+			}
 			@media (max-width: 320px) {
 				img.i
 				{
@@ -98,60 +102,62 @@
 			<span id="title">About</span>
 		</div>
 		<div id="tabs">
-			<div id="informationTab" class="tab" style="border-bottom: 2px solid #FF5252;" onclick="switchTab()">Información</div>
-			<div id="aboutTab" class="tab" onclick="switchTab()">Acerca de</div>
+			<div id="informationTab" class="tab" style="border-bottom: 2px solid #FF5252;" onclick="switchTab()">Information</div>
+			<div id="aboutTab" class="tab" onclick="switchTab()">About</div>
 		</div>
 		<div id="information">
 			<div>
-				<b>Explicación</b><br><br>
-				<p class="inf">El uso de la aplicación consiste en ir introduciendo los verbos correspondientes a la persona y verbo mostrados.</p>
-				<p class="inf">Si se acierta se suma un punto, si se falla se resta un punto y se añade a la lista de errores.</p>
-				<p class="inf">Pulsando sobre un error, permite volver a intentarlo. La aplicación guarda la puntuación máxima y los errores.</p>
+				<b id="1">Explanation</b><br><br>
+				<p id="2" class="inf">To use this app, you have to enter the verbs corresponding with the person and the verb displayed.</p>
+				<p id="3" class="inf">If the answer is correct you win one point, if it is incorrect you loose one point and is added to the mistakes list.</p>
+				<p id="4" class="inf">Pressing over a mistake lets you try again. The app stores the maximum points and the mistakes.</p>
 			</div>
 			<hr>
-			<b id="info5">Pantalla principal</b><br><br>
+			<b id="5">Main screen</b><br><br>
 			<div>
-				<img src="./1.png" class="i"/><br><br>
-				<p class="inf"><b style="color: #ff5252">1</b> Despliega el menú de opciones</p>
-				<p class="inf"><b style="color: #ff5252">2</b> Muestra la información de la aplicación</p>
+				<img id="img1" src="./1en.png" class="i"/><br><br>
+				<p id="6" class="inf"><b class='number'>1</b> Displays options menu</p>
+				<p id="7" class="inf"><b class='number'>2</b> Shows the app info</p>
 			</div>
 			<div>
-				<img src="./2.png" class="i"/><br><br>
-				<p class="inf"><b style="color: #ff5252">1</b> Desplegable de personas</p>
-				<p class="inf"><b style="color: #ff5252">2</b> Desplegable de verbos</p>
-				<p class="inf"><b style="color: #ff5252">3</b> Zona donde escribir el verbo (si se pulsa 
-					<span style="background: #D3D3D3; border-radius: 5px; padding: 2px;">Intro &#8629;</span>
-					después de escribir el verbo, se comprueba directamente sin necesidad de pulsar el botón Comprobar)</p>
-				<p class="inf"><b style="color: #ff5252">4</b> Traducción</p>
-				<p class="inf"><b style="color: #ff5252">5</b> Comprueba si el verbo escrito es correcto</p>
+				<img id="img2" src="./2en.png" class="i"/><br><br>
+				<p id="8" class="inf"><b class='number'>1</b> Persons combo</p>
+				<p id="9" class="inf"><b class='number'>2</b> Verbs combo</p>
+				<p id="10" class="inf"><b class='number'>3</b> The place to write the verb (if you press 
+					<span style='background: #D3D3D3; border-radius: 5px; padding: 2px;'>Enter &#8629;</span>
+					after writing the verb, the apps checks it without the need to press Check button)</p>
+				<p id="11" class="inf" style="display:none;"><!--hide becaude there are not english translations yet--><b class='number'>4</b> Translation</p>
+				<!--this should be n5 when there are verbs translations in english-->
+				<p id="12" class="inf"><b class='number'>4</b> Checks if the verb is correct or incorrect</p>
 			</div>
 			<div>
-				<img src="./3.png" class="i"/><br><br>
-				<p class="inf"><b style="color: #ff5252">1</b> Puntuación</p>
-				<p class="inf"><b style="color: #ff5252">2</b> Muestra si el verbo es correcto o incorrecto</p>
+				<img id="img3" src="./3en.png" class="i"/><br><br>
+				<p id="13" class="inf"><b class='number'>1</b> Points</p>
+				<p id="14" class="inf"><b class='number'>2</b> Shows if the verb is correct or incorrect</p>
 			</div>
 			<div>
-				<img src="./4.png" class="i"/><br><br>
-				<p class="inf"><b style="color: #ff5252">1</b> Limpia la lista de errores</p>
-				<p class="inf"><b style="color: #ff5252">2</b> Si se pulsa sobre un error se puede volver a intentar</p>
+				<img id="img4" src="./4en.png" class="i"/><br><br>
+				<p id="15" class="inf"><b class='number'>1</b> Clears the list of mistakes</p>
+				<p id="16" class="inf"><b class='number'>2</b> If you press a mistake you can try it again</p>
 			</div>
 			<hr>
-			<b id="info18">Opciones</b><br><br>
+			<b id="17">Options</b><br><br>
 			<div>
-				<img src="./5.png" class="i"/><br><br>
-				<p class="inf"><b style="color: #ff5252">*</b> Se puede seleccionar el tiempo verbal pulsando sobre cada uno</p>
+				<img id="img5" src="./5.png" class="i"/><br><br>
+				<p id="18" class="inf"><b class='number'>*</b> You can select the verbal tense pressing each one</p>
 			</div>
 			<div>
-				<img src="./6.png" class="i"/><br><br>
-				<p class="inf"><b style="color: #ff5252">1</b> Mostrar los verbos aleatoriamente</p>
-				<p class="inf"><b style="color: #ff5252">2</b> Mostrar la traducción de los verbos</p>
-				<p class="inf"><b style="color: #ff5252">3</b> En el caso de Passé Composé, esconder el verbo auxiliar para hacerlo más difícil</p>
+				<img id="img6" src="./6en.png" class="i"/><br><br>
+				<p id="19" class="inf"><b class='number'>1</b> Display the verbs randomly</p>
+				<p id="20" class="inf" style="display:none;"><!--hide becaude there are not english translations yet--><b class='number'>2</b> Display the verbs translation</p>
+				<!--this should be n3 when there are verbs translations in english-->
+				<p id="21" class="inf"><b class='number'>2</b> If you are in Passé Composé, hide the auxiliar verb to make it more difficult</p>
 			</div>
 		</div>
 		<div id="about" style="display: none">
 			<img src="./logo.png" />
 			<h2 id="appName">French verbs</h2>
-			<h5><i>Version: 1.15</i></h5>
+			<h5><i>Version: 1.16</i></h5>
 			<h5><a href="https://github.com/beriain/VerbosFrances">https://github.com/beriain/VerbosFrances</a></h5>
 			<p>This program is free software: you can redistribute it and/or modify
 			it under the terms of the GNU General Public License as published by
@@ -187,22 +193,52 @@
 			
 			function start()
 			{
-				if(navigator.language.substring(0, 2) != "es")
-				{
-					switchTab();
-					//document.getElementById("informationTab").style.display = "none";
-					//document.getElementById("aboutTab").style.width = "100%";
-					document.getElementById("tabs").style.display = "none";
-					document.getElementById("tabs").style.pointerEvents = "none";
-					document.getElementById("titleBar").style.height = "25px";
-					document.getElementById("titleBar").style.marginTop = "-61px";
-					document.getElementById("about").style.marginTop = "60px";
-				}
-				else
+				translate();
+			}
+			
+			function translate()
+			{
+				if(navigator.language.substring(0, 2) == "es")
 				{
 					document.title = "Acerca de";
 					document.getElementById("title").innerHTML = "Acerca de";
 					document.getElementById("appName").innerHTML = "Verbos francés";
+					
+					document.getElementById("informationTab").innerHTML = "Información";
+					document.getElementById("aboutTab").innerHTML = "Acerca de";
+					
+					document.getElementById("img1").src = "./1es.png";
+					document.getElementById("img2").src = "./2es.png";
+					document.getElementById("img3").src = "./3es.png";
+					document.getElementById("img4").src = "./4es.png";
+					document.getElementById("img6").src = "./6es.png";
+					
+					document.getElementById("1").innerHTML = "Explicación";
+					document.getElementById("2").innerHTML = "El uso de la aplicación consiste en ir introduciendo los verbos correspondientes a la persona y verbo mostrados.";
+					document.getElementById("3").innerHTML = "Si se acierta se suma un punto, si se falla se resta un punto y se añade a la lista de errores.";
+					document.getElementById("4").innerHTML = "Pulsando sobre un error, permite volver a intentarlo. La aplicación guarda la puntuación máxima y los errores.";
+					document.getElementById("5").innerHTML = "Pantalla principal";
+					document.getElementById("6").innerHTML = "<b class='number'>1</b> Despliega el menú de opciones";
+					document.getElementById("7").innerHTML = "<b class='number'>2</b> Muestra la información de la aplicación";
+					document.getElementById("8").innerHTML = "<b class='number'>1</b> Desplegable de personas";
+					document.getElementById("9").innerHTML = "<b class='number'>2</b> Desplegable de verbos";
+					document.getElementById("10").innerHTML = "<b class='number'>3</b> Zona donde escribir el verbo (si se pulsa " + 
+						"<span style='background: #D3D3D3; border-radius: 5px; padding: 2px;'>Intro &#8629;</span>" +
+						" después de escribir el verbo, se comprueba directamente sin necesidad de pulsar el botón Comprobar)";
+					document.getElementById("11").style.display = "block";
+					document.getElementById("11").innerHTML = "<b class='number'>4</b> Traducción";
+					document.getElementById("12").innerHTML = "<b class='number'>5</b> Comprueba si el verbo escrito es correcto";
+					document.getElementById("13").innerHTML = "<b class='number'>1</b> Puntuación";
+					document.getElementById("14").innerHTML = "<b class='number'>2</b> Muestra si el verbo es correcto o incorrecto";
+					document.getElementById("15").innerHTML = "<b class='number'>1</b> Limpia la lista de errores";
+					document.getElementById("16").innerHTML = "<b class='number'>2</b> Si se pulsa sobre un error se puede volver a intentar";
+					document.getElementById("17").innerHTML = "Opciones";
+					document.getElementById("18").innerHTML = "<b class='number'>*</b> Se puede seleccionar el tiempo verbal pulsando sobre cada uno";
+					document.getElementById("19").innerHTML = "<b class='number'>1</b> Mostrar los verbos aleatoriamente";
+					document.getElementById("20").style.display = "block";
+					document.getElementById("20").innerHTML = "<b class='number'>2</b> Mostrar la traducción de los verbos";
+					document.getElementById("21").innerHTML = "<b class='number'>3</b> En el caso de Passé Composé, esconder el verbo auxiliar para hacerlo más difícil";
+					
 				}
 			}
 			
