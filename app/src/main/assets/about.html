@@ -126,9 +126,8 @@
 				<p id="10" class="inf"><b class='number'>3</b> The place to write the verb (if you press 
 					<span style='background: #D3D3D3; border-radius: 5px; padding: 2px;'>Enter &#8629;</span>
 					after writing the verb, the apps checks it without the need to press Check button)</p>
-				<p id="11" class="inf" style="display:none;"><!--hide becaude there are not english translations yet--><b class='number'>4</b> Translation</p>
-				<!--this should be n5 when there are verbs translations in english-->
-				<p id="12" class="inf"><b class='number'>4</b> Checks if the verb is correct or incorrect</p>
+				<p id="11" class="inf"><b class='number'>4</b> Translation</p>
+				<p id="12" class="inf"><b class='number'>5</b> Checks if the verb is correct or incorrect</p>
 			</div>
 			<div>
 				<img id="img3" src="./3en.png" class="i"/><br><br>
@@ -144,20 +143,19 @@
 			<b id="17">Options</b><br><br>
 			<div>
 				<img id="img5" src="./5.png" class="i"/><br><br>
-				<p id="18" class="inf"><b class='number'>*</b> You can select the verbal tense pressing each one</p>
+				<p id="18" class="inf"><b class='number'>*</b> You can select the verb tense pressing each one</p>
 			</div>
 			<div>
 				<img id="img6" src="./6en.png" class="i"/><br><br>
 				<p id="19" class="inf"><b class='number'>1</b> Display the verbs randomly</p>
-				<p id="20" class="inf" style="display:none;"><!--hide becaude there are not english translations yet--><b class='number'>2</b> Display the verbs translation</p>
-				<!--this should be n3 when there are verbs translations in english-->
-				<p id="21" class="inf"><b class='number'>2</b> If you are in Passé Composé, hide the auxiliar verb to make it more difficult</p>
+				<p id="20" class="inf"><b class='number'>2</b> Display the translation of the verbs</p>
+				<p id="21" class="inf"><b class='number'>3</b> If you are in Passé Composé, hide the auxiliar verb to make it more difficult</p>
 			</div>
 		</div>
 		<div id="about" style="display: none">
 			<img src="./logo.png" />
 			<h2 id="appName">French verbs</h2>
-			<h5><i>Version: 1.16</i></h5>
+			<h5><i><span id="version">Version</span>: 1.16</i></h5>
 			<h5><a href="https://github.com/beriain/VerbosFrances">https://github.com/beriain/VerbosFrances</a></h5>
 			<p>This program is free software: you can redistribute it and/or modify
 			it under the terms of the GNU General Public License as published by
@@ -172,7 +170,9 @@
 			<p>You should have received a copy of the GNU General Public License
 			along with this program.  If not, see <a href="http://www.gnu.org/licenses">http://www.gnu.org/licenses</a>.</p>
 		</div>
-		<script>			
+		<script>
+			var uiLang;
+
 			function switchTab()
 			{
 				if(document.getElementById("information").style.display == "none")
@@ -193,12 +193,17 @@
 			
 			function start()
 			{
+				if(localStorage.getItem("uiLang") != null)
+				{
+					uiLang = localStorage.getItem("uiLang");
+				}
+				else uiLang = navigator.language.substring(0, 2);
 				translate();
 			}
 			
 			function translate()
 			{
-				if(navigator.language.substring(0, 2) == "es")
+				if(uiLang == "es")
 				{
 					document.title = "Acerca de";
 					document.getElementById("title").innerHTML = "Acerca de";
@@ -206,6 +211,7 @@
 					
 					document.getElementById("informationTab").innerHTML = "Información";
 					document.getElementById("aboutTab").innerHTML = "Acerca de";
+					document.getElementById("version").innerHTML = "Versión";
 					
 					document.getElementById("img1").src = "./1es.png";
 					document.getElementById("img2").src = "./2es.png";
@@ -238,6 +244,49 @@
 					document.getElementById("20").style.display = "block";
 					document.getElementById("20").innerHTML = "<b class='number'>2</b> Mostrar la traducción de los verbos";
 					document.getElementById("21").innerHTML = "<b class='number'>3</b> En el caso de Passé Composé, esconder el verbo auxiliar para hacerlo más difícil";
+					
+				}
+				if(uiLang == "eu")
+				{
+					document.title = "Honi buruz";
+					document.getElementById("title").innerHTML = "Honi buruz";
+					document.getElementById("appName").innerHTML = "Aditz frantsesak";
+					
+					document.getElementById("informationTab").innerHTML = "Informazioa";
+					document.getElementById("aboutTab").innerHTML = "Honi buruz";
+					document.getElementById("version").innerHTML = "Bertsioa";
+					
+					document.getElementById("img1").src = "./1eu.png";
+					document.getElementById("img2").src = "./2eu.png";
+					document.getElementById("img3").src = "./3eu.png";
+					document.getElementById("img4").src = "./4eu.png";
+					document.getElementById("img6").src = "./6eu.png";
+					
+					document.getElementById("1").innerHTML = "Azalpena";
+					document.getElementById("2").innerHTML = "Aplikazioaren funtzionamendua zehaztutako pertsona eta aditzari dagokion aditza idaztean datza.";
+					document.getElementById("3").innerHTML = "Asmatzen bada puntu bat gehitzen da, huts egiten bada puntu bat kendu eta akatsen zerrendara gehitzen da.";
+					document.getElementById("4").innerHTML = "Akats baten gainean sakatuta, berriz saiatzea baimentzen du. Aplikazioak gehienezko puntuak eta akatsak gordetzen ditu.";
+					document.getElementById("5").innerHTML = "Pantaila nagusia";
+					document.getElementById("6").innerHTML = "<b class='number'>1</b> Aukeren menua erakusten du";
+					document.getElementById("7").innerHTML = "<b class='number'>2</b> Aplikazioaren informazioa erakusten du";
+					document.getElementById("8").innerHTML = "<b class='number'>1</b> Pertsonen menu zabalgarria erakusten du";
+					document.getElementById("9").innerHTML = "<b class='number'>2</b> Aditzen menu zabalgarria erakusten du";
+					document.getElementById("10").innerHTML = "<b class='number'>3</b> Aditza idazteko lekua (" + 
+						"<span style='background: #D3D3D3; border-radius: 5px; padding: 2px;'>Sartu &#8629;</span> sakatzen bada " +
+						"aditza idatzi ondoren, egiaztatu egiten da Egiaztatu botoia sakatu beharrik gabe)";
+					document.getElementById("11").style.display = "block";
+					document.getElementById("11").innerHTML = "<b class='number'>4</b> Itzulpena";
+					document.getElementById("12").innerHTML = "<b class='number'>5</b> Idatzitako aditza zuzena den egiaztatzen du";
+					document.getElementById("13").innerHTML = "<b class='number'>1</b> Puntuak";
+					document.getElementById("14").innerHTML = "<b class='number'>2</b> Aditza zuzena edo okerra den erakusten du";
+					document.getElementById("15").innerHTML = "<b class='number'>1</b> Akatsen zerrenda garbitzen du";
+					document.getElementById("16").innerHTML = "<b class='number'>2</b> Akats baten gainean sakatzen bada berriz saiatzea baimentzen du";
+					document.getElementById("17").innerHTML = "Aukerak";
+					document.getElementById("18").innerHTML = "<b class='number'>*</b> Aditz denbora hautatu daiteke bakoitzaren gainean sakatuz";
+					document.getElementById("19").innerHTML = "<b class='number'>1</b> Aditzak ausaz erakutsi";
+					document.getElementById("20").style.display = "block";
+					document.getElementById("20").innerHTML = "<b class='number'>2</b> Aditzen itzulpenak erakutsi";
+					document.getElementById("21").innerHTML = "<b class='number'>3</b> Passé Composé aditz denboraren kasuan, aditz laguntzailea ezkutatu zailagoa izateko";
 					
 				}
 			}

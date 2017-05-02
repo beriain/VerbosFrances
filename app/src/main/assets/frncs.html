@@ -63,9 +63,11 @@
 	var vtranslationsImparfait = new Array();//para el significado de los verbos en imperatif en cada idioma
 	var vtranslationsFuturSimple = new Array();//para el significado de los verbos en futur simple en cada idioma
 	var vtranslationsConditionnel = new Array();//para el significado de los verbos en conditionnel en cada idioma
-	var vauxPronomPC = ["Me ", "Te ", "Se ", "Nos ", "Os ", "Se "];
-    var vauxPC = ["He ", "Has ", "Ha ", "Hemos ", "Habéis ", "Han "];
+	var vauxPronomPC = new Array();
+    var vauxPC = new Array();
     var i = "";//variable para mostrar la correccion
+	var noTranslation = "Translation is missing ¯\\_(ツ)_/¯";//display when translation of a verb is missing
+	var uiLang = "";
 	var verbes = [	["Avoir", "ai", "as", "a", "avons", "avez", "ont"],
 		["Être", "suis", "es", "est", "sommes", "êtes", "sont"],
 		["Aimer", "aime", "aimes", "aime", "aimons", "aimez", "aiment"],
@@ -257,7 +259,7 @@
 			document.querySelector('#person [value="' + p + '"]').selected = true;//actualizar el desplegable de personas
 		}
 		translateVerbs();
-		document.getElementById("verbalTense").value = vtemp;
+		document.getElementById("verbTense").value = vtemp;
 	}
 
     function checkPresent()
@@ -662,7 +664,7 @@
 			/***/
 			resetPerson();
 			/***/
-			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[0].text;
+			document.getElementById("t").placeholder = document.getElementById("verbTense").options[0].text;
 		}
 		if(vtemp == 1)//si cambiamos a passe compose
 		{
@@ -701,7 +703,7 @@
 			/***/
 			resetPerson();
 			/***/
-			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[1].text;
+			document.getElementById("t").placeholder = document.getElementById("verbTense").options[1].text;
 		}
 		if(vtemp == 2)//si cambiamos a imperatif
 		{
@@ -729,7 +731,7 @@
 
 			pe[1].selected = true;
 
-			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[2].text;
+			document.getElementById("t").placeholder = document.getElementById("verbTense").options[2].text;
 		}
 		if(vtemp == 3)//si cambiamos a imparfait
 		{
@@ -751,7 +753,7 @@
 			/***/
 			resetPerson();
 			/***/
-			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[3].text;
+			document.getElementById("t").placeholder = document.getElementById("verbTense").options[3].text;
 		}
 		if(vtemp == 4)//si cambiamos a futur simple
 		{
@@ -773,7 +775,7 @@
 			/***/
 			resetPerson();
 			/***/
-			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[4].text;
+			document.getElementById("t").placeholder = document.getElementById("verbTense").options[4].text;
 		}
 		if(vtemp == 5)//si cambiamos a conditionnel
 		{
@@ -795,7 +797,7 @@
 			/***/
 			resetPerson();
 			/***/
-			document.getElementById("t").placeholder = document.getElementById("verbalTense").options[5].text;
+			document.getElementById("t").placeholder = document.getElementById("verbTense").options[5].text;
 		}
 		document.getElementById("t").select();
     }
@@ -849,10 +851,13 @@
     function start()
     {
       setErrorsTableHeight();
-      translate();
+      //translate();
       changeTemp();
       checkAndroidVersion();
       read();
+	  translate();
+	  translateVerbs();
+	  fillErrorsTable()
 	  //479.5 = settings height (header(433.5) + elements (46))
 	  if(window.innerHeight <= 480)
 	  {
@@ -863,7 +868,7 @@
 
     function translate()
     {
-		if(navigator.language.substring(0, 2) == "es")
+		if(uiLang == "es")
 		{
 			document.title = "Francés";
 			tcorrect = "Correcto";
@@ -877,7 +882,6 @@
 			document.getElementById("erreurs").caption.innerHTML = texterreurs;
 			document.getElementById("menuString1").innerHTML = "Opciones";
 			document.getElementById("menuString2").innerHTML = "Verbos francés";
-			document.getElementById("issues").innerHTML = "Sugerencias, errores, etc";
 
 			document.getElementById("tempsverbaux").innerHTML = "Tiempo verbal";
 			document.getElementById("preferences").innerHTML = "Preferencias";
@@ -885,6 +889,12 @@
 			document.getElementById("tmTranslations").innerHTML = "Mostrar significado de los verbos";
 			document.getElementById("tmShowPasseCompose").innerHTML = "Esconder Avoir o Être en Passé Composé";
 			document.getElementById("translationRow").style.display = "";
+			document.getElementById("contact").innerHTML = "Sugerencias, errores, etc.";
+			noTranslation = "Falta la traduccíon ¯\\_(ツ)_/¯";
+			document.getElementById("tmUILang").innerHTML = "Idioma de la aplicación";
+			document.getElementById("sUILang").options[0].text = "Inglés";
+			document.getElementById("sUILang").options[1].text = "Castellano";
+			document.getElementById("sUILang").options[2].text = "Euskera";
 			
 			vtranslationsPI = [	["Tengo", "Tienes", "Tiene", "Tenemos", "Tenéis", "Tienen"],
 								["Soy, estoy", "Eres, estas", "Es, está", "Somos, estamos", "Sois, estáis", "Son, estan"],
@@ -924,6 +934,8 @@
 								["Puedo", "Puedes", "Puede", "Podemos", "Podéis", "Pueden"],
 								["Quiero", "Quieres", "Quiere", "Queremos", "Queréis", "Quieren"]];
 
+			vauxPronomPC = ["Me ", "Te ", "Se ", "Nos ", "Os ", "Se "];
+			vauxPC = ["He ", "Has ", "Ha ", "Hemos ", "Habéis ", "Han "];
 			vtranslationsPCAvoir = [" comido", " nadado", " hecho", " tenido", " sido, estado", " amado",
 			" olvidado", " hablado", " dibujado", " aprendido", " elegido", " comprendido", " dicho",
 			" dormido", " escrito",  " leido", " puesto, colocado", " abierto", " podido", " tomado, cogido", " vendido",
@@ -949,7 +961,7 @@
 								["Duchate", "Duchémonos", "Duchaos"],
 								["Vistete", "Vistámonos", "Vestíos"],
 								["Peinate", "Peinémonos", "Peinaos"],
-								["Acuestate", "Acostémonos", "Acostaos"],];
+								["Acuestate", "Acostémonos", "Acostaos"]];
 			vtranslationsImparfait = [	["Tenía", "Tenías", "Tenía", "Teníamos", "Teníais", "Tenían"],
 										["Era", "Eras", "Era", "Éramos", "Érais", "Eran"],
 										["Comía", "Comías", "Comía", "Comíamos", "Comíais", "Comían"],
@@ -963,6 +975,194 @@
 										["Sería", "Serías", "Sería", "Seríamos", "Seríais", "Serían"],
 										["Leería", "Leerías", "Leería", "Leeríamos", "Leeríais", "Leerían"]];
 		}
+		else if(uiLang == "eu")
+		{
+			document.title = "Frantsesa";
+			tcorrect = "Zuzena";
+			tincorrect = "Okerra";
+			texterreurs = "Akatsak:";
+			tlimpiar = "Garbitu";
+			document.getElementById("aleatoire").innerHTML = "Ausazko aditzak";
+			document.getElementById("verifier").innerHTML = "Egiaztatu";
+			document.getElementById("points").innerHTML = "Puntuak: <span id='p'>0</span>";
+			document.getElementById("max").innerHTML = "Gehienak: <span id='pmax'>0</span>";
+			document.getElementById("erreurs").caption.innerHTML = texterreurs;
+			document.getElementById("menuString1").innerHTML = "Aukerak";
+			document.getElementById("menuString2").innerHTML = "Aditz frantsesak";
+
+			document.getElementById("tempsverbaux").innerHTML = "Aditz denbora";
+			document.getElementById("preferences").innerHTML = "Hobespenak";
+			document.getElementById("mTranslations").style.display = "";
+			document.getElementById("tmTranslations").innerHTML = "Aditzen esanahia erakutsi";
+			document.getElementById("tmShowPasseCompose").innerHTML = "Avoir edo Être ezkutatu Passé Composé aditz denboran";
+			document.getElementById("translationRow").style.display = "";
+			document.getElementById("contact").innerHTML = "Iradokizunak, akatsak, etab.";
+			noTranslation = "Itzulpena falta da ¯\\_(ツ)_/¯";
+			document.getElementById("tmUILang").innerHTML = "Aplikazioaren hizkuntza";
+			document.getElementById("sUILang").options[0].text = "Ingelera";
+			document.getElementById("sUILang").options[1].text = "Gaztelania";
+			document.getElementById("sUILang").options[2].text = "Euskera";
+			
+			vtranslationsPI = [	["Daukat, dut", "Daukazu, duzu", "Dauka, du", "Daukagu, dugu", "Daukazue, duzue", "Daukate, dute"],
+								["Naiz, nago", "Zara, zaude", "Da, dago", "Gara, gaude", "Zarete, zaudete", "Dira, daude"],
+								["Maite dut", "Maite duzu", "Maite du", "Maite dugu", "Maite duzue", "Maite dute"],
+								["Lan egiten dut", "Lan egiten duzu", "Lan egiten du", "Lan egiten dugu", "Lan egiten duzue", "Lan egiten dute"],
+								["Jaten dut", "Jaten duzu", "Jaten du", "Jaten dugu", "Jaten duzue", "Jaten dute"],
+								["Hasten naiz/dut", "Hasten zara/duzu", "Hasten da/du", "Hasten gara/dugu", "Hasten zarete/duzue", "Hasten dira/dute"],
+								["Erosten dut", "Erosten duzu", "Erosten du", "Erosten dugu", "Erosten duzue", "Erosten dute"],
+								["Botatzen dut", "Botatzen duzu", "Botatzen du", "Botatzen dugu", "Botatzen duzue", "Botatzen dute"],
+								["Letreiatzen dut", "Letreiatzen duzu", "Letreiatzen du", "Letreiatzen dugu", "Letreiatzen duzue", "Letreiatzen dute"],
+								["Izozten naiz/dut", "Izozten zara/duzu", "Izozten da/du", "Izozten gara/dugu", "Izozten zarete/duzue", "Izozten dira/dute"],
+								["Nahiago dut", "Nahiago duzu", "Nahiago du", "Nahiago dugu", "Nahiago duzue", "Nahiago dute"],
+								["Deitzen naiz", "Deitzen zara", "Deitzen da", "Deitzen gara", "Deitzen zarete", "Deitzen dira"],
+								["Esnatzen naiz", "Esnatzen zara", "Esnatzen da", "Esnatzen gara", "Esnatzen zarete", "Esnatzen dira"],
+								["Amaitzen dut", "Amaitzen duzu", "Amaitzen du", "Amaitzen dugu", "Amaitzen duzue", "Amaitzen dute"],
+								["Hautatzen dut", "Hautatzen duzu", "Hautatzen du", "Hautatzen dugu", "Hautatzen duzue", "Hautatzen dute"],
+								["Gainditu, lortzen dut", "Gainditu, lortzen duzu", "Gainditu, lortzen du", "Gainditu, lortzen dugu", "Gainditu, lortzen duzue", "Gainditu, lortzen dute"],
+								["Noa", "Zoaz", "Doa", "Goaz", "Zoazte", "Doaz"],
+								["Egiten dut", "Egiten duzu", "Egiten du", "Egiten dugu", "Egiten duzue", "Egiten dute"],
+								["Esaten dut", "Esaten duzu", "Esaten du", "Esaten dugu", "Esaten duzue", "Esaten dute"],
+								["Irekitzen dut", "Irekitzen duzu", "Irekitzen du", "Irekitzen dugu", "Irekitzen duzue", "Irekitzen dute"],
+								["Banoa", "Bazoaz", "Badoa", "Bagoaz", "Bazoazte", "Badoaz"],
+								["Lo egiten dut", "Lo egiten duzu", "Lo egiten du", "Lo egiten dugu", "Lo egiten duzue", "Lo egiten dute"],
+								["Idazten dut", "Idazten duzu", "Idazten du", "Idazten dugu", "Idazten duzue", "Idazten dute"],
+								["Irakurtzen dut", "Irakurtzen duzu", "Irakurtzen du", "Irakurtzen dugu", "Irakurtzen duzue", "Irakurtzen dute"],
+								["Erantzuten dut", "Erantzuten duzu", "Erantzuten du", "Erantzuten dugu", "Erantzuten duzue", "Erantzuten dute"],
+								["Jartzen dut", "Jartzen duzu", "Jartzen du", "Jartzen dugu", "Jartzen duzue", "Jartzen dute"],
+								["Ezagutzen dut", "Ezagutzen duzu", "Ezagutzen du", "Ezagutzen dugu", "Ezagutzen duzue", "Ezagutzen dute"],
+								["Ikusten dut", "Ikusten duzu", "Ikusten du", "Ikusten dugu", "Ikusten duzue", "Ikusten dute"],
+								["Margotzen dut", "Margotzen duzu", "Margotzen du", "Margotzen dugu", "Margotzen duzue", "Margotzen dute"],
+								["Hartzen dut", "Hartzen duzu", "Hartzen du", "Hartzen dugu", "Hartzen duzue", "Hartzen dute"],
+								["Nator", "Zatoz", "Dator", "Gatoz", "Zatozte", "Datoz"],
+								["Edaten dut", "Edaten duzu", "Edaten du", "Edaten dugu", "Edaten duzue", "Edaten dute"],
+								["Jasotzen dut", "Jasotzen duzu", "Jasotzen du", "Jasotzen dugu", "Jasotzen duzue", "Jasotzen dute"],
+								["Dakit", "Dakizu", "Daki", "Dakigu", "Dakizue", "Dakite"],
+								["Egin behar dut", "Egin behar duzu", "Egin behar du", "Egin behar dugu", "Egin behar duzue", "Egin behar dute"],
+								["Ahal dut", "Ahal duzu", "Ahal du", "Ahal dugu", "Ahal duzue", "Ahal dute"],
+								["Nahi dut", "Nahi duzu", "Nahi du", "Nahi dugu", "Nahi duzue", "Nahi dute"]];
+
+			vauxPronomPC = [" naiz", " zara", " da", " gara", " zarete", " dira"];
+			vauxPC = [" dut", " duzu", " du", " dugu", " duzue", " dute"];
+			vtranslationsPCAvoir = ["Jan", "Igeri egin", "Egin", "Eduki", "Izan, egon", "Maite izan",
+			"Ahaztu", "Hitzegin", "Marraztu", "Ikasi", "Hautatu", "Ulertu", "Esan",
+			"Lo egin", "Idatzi",  "Irakurri", "Jarri", "Ireki", "Ahal izan", "Hartu", "Saldu",
+			"Bizi izan", "Nahi izan"];
+			vtranslationsPCEtre = ["Jaio", "Hil", "Bueltatu", "Etorri", "Iritsi", "Igo", "Sartu", "Gelditu",
+			"Irten", "Jaitsi", "Erori", "Irten", "Esnatu"];
+			vtranslationsImp = [["Jan ezazu", "Jan dezagun", "Jan ezazue"],
+								["Hasi zaitez/ezazu", "Hasi gaitezen/dezagun", "Hasi zaitezte/ezazue"],
+								["Lan egin ezazu", "Lan egin dezagun", "Lan egin ezazue"],
+								["Irri egin ezazu", "Irri egin dezagun", "Irri egin ezazue"],
+								["Hartu ezazu", "Hartu dezagun", "Hartu ezazue"],
+								["Jarri ezazu", "Jarri dezagun", "Jarri ezazue"],
+								["Lo egin ezazu", "Lo egin dezagun", "Lo egin ezazue"],
+								["Pentsatu, sinistu ezazu", "Pentsatu, sinistu dezagun", "Pentsatu, sinistu ezazue"],
+								["Korrika egin ezazu", "Korrika egin dezagun", "Korrika egin ezazue"],
+								["Egin ezazu", "Egin dezagun", "Egin ezazue"],
+								["Itxaron ezazu", "Itxaron dezagun", "Itxaron ezazue"],
+								["Esnatu zaitez", "Esnatu gaitezen", "Esnatu zaitezte"],
+								["Altxa zaitez", "Altxa gaitezen", "Altxa zaitezte"],
+								["Mugi zaitez", "Mugi gaitezen", "Mugi zaitezte"],
+								["Prestatu zaitez", "Prestatu gaitezen", "Prestatu zaitezte"],
+								["Bizarra moztu ezazu", "Bizarra moztu dezagun", "Bizarra moztu ezazue"],
+								["Dutxa eman ezazu", "Dutxa eman dezagun", "Dutxa eman ezazue"],
+								["Jantzi zaitez", "Jantzi gaitezen", "Jantzi zaitezte"],
+								["Orraztu zaitez", "Orraztu gaitezen", "Orraztu zaitezte"],
+								["Oheratu zaitez", "Oheratu gaitezen", "Oheratu zaitezte"]];
+			vtranslationsImparfait = [	["Nuen", "Zenuen", "Zuen", "Genuen", "Zenuten", "Zuten"],
+										["Nintzen", "Zinen", "Zen", "Ginen", "Zineten", "Ziren"],
+										["Jaten nuen", "Jaten zenuen", "Jaten zuen", "Jatem genuen", "Jaten zenuten", "Jaten zuten"],
+										["Hasten nintzen", "Hasten zinen", "Hasten zen", "Hasten ginen", "Hasten zineten", "Hasten ziren"]];
+			vtranslationsFuturSimple = [["Maiteko dut", "Maiteko duzu", "Maiteko du", "Maiteko dugu", "Maiteko duzue", "Maiteko dute"],
+										["Izango/edukiko dut", "Izango/edukiko duzu", "Izango/edukiko du", "Izango/edukiko dugu", "Izango/edukiko duzue", "Izango/edukiko dute"],
+										["Izango naiz", "Izango zara", "Izango da", "Izango gara", "Izango zarete", "Izango dira"],
+										["Irakurriko dut", "Irakurriko duzu", "Irakurriko du", "Irakurriko dugu", "Irakurriko duzue", "Irakurriko dute"]];
+			vtranslationsConditionnel = [["Maiteko nuke", "Maiteko zenuke", "Maiteko luke", "Maiteko genuke", "Maiteko zenukete", "Maiteko zenukete"],
+										["Izango/edukiko nuke", "Izango/edukiko zenuke", "Izango/edukiko luke", "Izango/edukiko genuke", "Izango/edukiko zenukete", "Izango/edukiko zenukete"],
+										["Izango nintzateke", "Izango zinateke", "Izango litzateke", "Izango ginateke", "Izango zinateke", "Izango lirateke"],
+										["Irakurriko nuke", "Irakurriko zenuke", "Irakurriko luke", "Irakurriko genuke", "Irakurriko zenukete", "Irakurriko zenukete"]];
+		}
+		else
+		{
+			vtranslationsPI = [	["I have", "You have", "He/She has", "We have", "You have", "They have"],
+								["I am", "You are", "He/She is", "We are", "You are", "They are"],
+								["I love", "You love", "He/She loves", "We love", "You love", "They love"],
+								["I work", "You work", "He/She works", "We work", "You work", "They work"],
+								["I eat", "You eat", "He/She eats", "We eat", "You eat", "They eat"],
+								["I start", "You start", "He/She starts", "We start", "You start", "They start"],
+								["I buy", "You buy", "He/She buys", "We buy", "You buy", "They buy"],
+								["I throw", "You throw", "He/She throws", "We throw", "You throw", "They throw"],
+								["I spell", "You spell", "He/She spells", "We spell", "You spell", "They spell"],
+								["I freeze", "You freeze", "He/She freezes", "We freeze", "You freeze", "They freeze"],
+								["I prefer", "You prefer", "He/She prefers", "We prefer", "You prefer", "They prefer"],
+								["My name is", "Your name is", "His/Her name is", "Our name is", "Your name is", "Their name is"],
+								["I wake up", "You wake up", "He/She wakes up", "We wake up", "You wake up", "They wake up"],
+								["I finish", "You finish", "He/She finishes", "We finish", "You finish", "They finish"],
+								["I choose", "You choose", "He/She chooses", "We choose", "You choose", "They choose"],
+								["I succeed", "You succeed", "He/She succeeds", "We succeed", "You succeed", "They succeed"],
+								["I go", "You go", "He/She goes", "We go", "You go", "They go"],
+								["I do", "You do", "He/She does", "We do", "You do", "They do"],
+								["I say", "You say", "He/She says", "We say", "You say", "They say"],
+								["I open", "You open", "He/She opens", "We open", "You open", "They open"],
+								["I leave", "You leave", "He/She leaves", "We leave", "You leave", "They leave"],
+								["I sleep", "You sleep", "He/She sleeps", "We sleep", "You sleep", "They sleep"],
+								["I write", "You write", "He/She writes", "We write", "You write", "They write"],
+								["I read", "You read", "He/She reads", "We read", "You read", "They read"],
+								["I answer", "You answer", "He/She answers", "We answer", "You answer", "They answer"],
+								["I put", "You put", "He/She puts", "We put", "You put", "They put"],
+								["I know", "You know", "He/She knows", "We know", "You know", "They know"],
+								["I see", "You see", "He/She sees", "We see", "You see", "They see"],
+								["I paint", "You paint", "He/She paints", "We paint", "You paint", "They paint"],
+								["I take", "You take", "He/She takes", "We take", "You take", "They take"],
+								["I come", "You come", "He/She comes", "We come", "You come", "You come"],
+								["I drink", "You drink", "He/She drinks", "We drink", "You drink", "They drink"],
+								["I receive", "You receive", "He/She receives", "We receive", "You receive", "They receive"],
+								["I know", "You know", "He/She knows", "We know", "You know", "They know"],
+								["I must", "You must", "He/She must", "We must", "You must", "They must"],
+								["I can", "You can", "He/She cans", "We can", "You can", "They can"],
+								["I want", "You want", "He/She wants", "We want", "You want", "They want"]];
+
+			vauxPC = ["I have ", "You have ", "He/She has ", "We have ", "You have ", "They have "];
+			vtranslationsPCAvoir = [" eaten", " swamed", " done", " had", " been", " loved",
+			" forgotten", " spoken", " drawn", " learnt", " choosen", " understood", " said",
+			" slept", " written",  " read", " put", " opened", " been able", " taken", " sold",
+			" lived", " wanted"];
+			vauxPronomPC = ["I was ", "You were ", "He/She was ", "We were ", "You were ", "They were "];
+			vtranslationsPCEtre = ["born", "dead", "back", "come", "arrived", "went up", "entered", "stayed",
+			"came out", "came down", "fell", "left", "woke up"];
+			vtranslationsImp = [["Eat", "Let's eat", "Eat"],
+								["Start", "Let's start", "Start"],
+								["Work", "Let's work", "Work"],
+								["Smile", "Let's smile", "Smile"],
+								["Take", "Let's take", "Take"],
+								["Put", "Let's put", "Put"],
+								["Sleep", "Let's sleep", "Sleep"],
+								["Believe", "Let's believe", "Believe"],
+								["Run", "Let's run", "Run"],
+								["Do", "Let's do", "Do"],
+								["Wait", "Let's wait", "Wait"],
+								["Wake up", "Let's wake up", "Wake up"],
+								["Get up", "Let's get up", "Get up"],
+								["Hurry up", "Let's hurry up", "Hurry up"],
+								["Prepare yourself", "Let's prepare", "Prepare yourselves"],
+								["Shave yourself", "Let's shave", "Shave yourselves"],
+								["Shower yourself", "Let's shower", "Shower yourselves"],
+								["Dress up", "Let's dress up", "Dress up"],
+								["Comb", "Let's comb", "Comb"],
+								["Go to bed", "Let's go to bed", "Go to bed"]];
+			vtranslationsImparfait = [	["I had", "You had", "He/She had", "We had", "You had", "They had"],
+										["I was", "You were", "He/She was", "We were", "You were", "They were"],
+										["I was eating", "You were eating", "He/She was eating", "We were eating", "You were eating", "They were eating"],
+										["I was starting", "You were starting", "He/She was starting", "We were starting", "You were starting", "They were starting"]];
+			vtranslationsFuturSimple = [["I will love", "You will love", "He/She will love", "We will love", "You will love", "They will love"],
+										["I will have", "You will have", "He/She will have", "We will have", "You will have", "They will have"],
+										["I will be", "You will be", "He/She will be", "We will be", "You will be", "They will be"],
+										["I will read", "You will read", "He/She will read", "We will read", "You will read", "They will read"]];
+			vtranslationsConditionnel = [["I would love", "You would love", "He/She would love", "We would love", "You would love", "Thay would love"],
+										["I would have", "You would have", "He/She would have", "We would have", "You would have", "They would have"],
+										["I would be", "You would be", "He/She would be", "We would be", "You would be", "They would be"],
+										["I would read", "You would read", "He/She would read", "We would read", "You would read", "They would read"]];
+		}
     }
 
     function save()
@@ -972,11 +1172,14 @@
 
     function read()
     {
-		if(localStorage.getItem("errors") != null)
+		if(localStorage.getItem("uiLang") != null)
     	{
-    		errors = JSON.parse(localStorage["errors"]);
-			fillErrorsTable();
+    		uiLang = localStorage.getItem("uiLang");
     	}
+		else uiLang = navigator.language.substring(0, 2);
+		if(uiLang != "en" && uiLang != "es" && uiLang != "eu")
+			uiLang = "en";
+		document.getElementById("sUILang").value = uiLang;
 		if(localStorage.getItem("pmax") != null)
 		{
 			pmax = localStorage.getItem("pmax");
@@ -1016,114 +1219,120 @@
 				document.getElementById("checkboxPasseCompose").checked = true;
 			else document.getElementById("checkboxPasseCompose").checked = false;
 		}
+		if(localStorage.getItem("errors") != null)
+    	{
+    		errors = JSON.parse(localStorage["errors"]);
+			fillErrorsTable();
+    	}
     }
 
     function fillErrorsTable()
     {
-      //limpiar la tabla
-      var table = document.getElementById("erreurs");
-      table.innerHTML = "<caption>" + texterreurs + "<button id='cl' onclick='cl(); hideSettings();' style='float: right;'>" + tlimpiar + "</button></caption>";
-      //rellenar la tabla
-      for(x = 0; x < errors.length; x++)
-      {
-        var row = table.insertRow(0);
-        var cell = row.insertCell(0);
-        cell.innerHTML = errors[x].cont;
-        cell.setAttribute("i", errors[x].index);
-        cell.setAttribute("p", errors[x].person);//guardar la persona
-        cell.setAttribute("vt", errors[x].verbTemp);//guardar el tiempo verbal
-        cell.setAttribute("va", errors[x].vaux);//guardar la posicion del verbo auxiliar
-        cell.setAttribute("v", errors[x].verb);//guardar la posicion del verbo
+			//limpiar la tabla
+		  var table = document.getElementById("erreurs");
+		  if(errors.length > 0) table.innerHTML = "<caption>" + texterreurs + "<button id='cl' onclick='cl(); hideSettings();' style='float: right;'>" + tlimpiar + "</button></caption>";
+		  else table.innerHTML = "<caption>" + texterreurs + "</caption>";
+		  //rellenar la tabla
+		  for(x = 0; x < errors.length; x++)
+		  {
+			var row = table.insertRow(0);
+			var cell = row.insertCell(0);
+			cell.innerHTML = errors[x].cont;
+			cell.setAttribute("i", errors[x].index);
+			cell.setAttribute("p", errors[x].person);//guardar la persona
+			cell.setAttribute("vt", errors[x].verbTemp);//guardar el tiempo verbal
+			cell.setAttribute("va", errors[x].vaux);//guardar la posicion del verbo auxiliar
+			cell.setAttribute("v", errors[x].verb);//guardar la posicion del verbo
 
-        cell.onclick = function()
-        {
-          //quitar los bordes de seleccion y restablecer el tamaño de fuente para que se vuelva a ver el texto
-          for(x = 0; x < document.getElementById("erreurs").getElementsByTagName("tr").length; x++)
-          {
-            document.getElementById("erreurs").rows[x].cells[0].style.border = "none";
-            document.getElementById("erreurs").rows[x].cells[0].style.fontSize = "100%";
-          }
-          //si estamos desmarcando el error...
-          if(r && this.getAttribute("i") == it)
-          {
-            this.style.border = "none";
-            it = null;
-            changeTemp();
-            r = false;
-          }
-          else//si estamos seleccionando el error
-          {
-            r = true;//marcar que se va a reintentar
-            it = this.getAttribute("i");//poner el indice general para en caso de acertar borrar la fila
-            if(this.getAttribute("vt") == 0)//si es presente
-            {
-              vtemp = this.getAttribute("vt");
-              changeTemp();
-              document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
-              document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
-            }
-            if(this.getAttribute("vt") == 1)//si es passe compose
-            {
-              if(this.getAttribute("va") == 0)//si es avoir
-              {
-
-                document.querySelector('#verbAux [value="' + this.getAttribute("va") + '"]').selected = true;
-                vtemp = this.getAttribute("vt");
-                changeTemp();
-                document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
-                document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
-              }
-              else//si es etre
-              {
-                vtemp = this.getAttribute("vt");
-                changeTemp();
-                document.querySelector('#verbAux [value="' + this.getAttribute("va") + '"]').selected = true;
-                document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
-                document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
-              }
-
-            }
-            if(this.getAttribute("vt") == 2)//si es imperatif
-            {
-              vtemp = this.getAttribute("vt");
-              changeTemp();
-              document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
-              document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
-            }
-			if(this.getAttribute("vt") == 3)//si es imparfait
-            {
-				vtemp = this.getAttribute("vt");
+			cell.onclick = function()
+			{
+			  //quitar los bordes de seleccion y restablecer el tamaño de fuente para que se vuelva a ver el texto
+			  for(x = 0; x < document.getElementById("erreurs").getElementsByTagName("tr").length; x++)
+			  {
+				document.getElementById("erreurs").rows[x].cells[0].style.border = "none";
+				document.getElementById("erreurs").rows[x].cells[0].style.fontSize = "100%";
+			  }
+			  //si estamos desmarcando el error...
+			  if(r && this.getAttribute("i") == it)
+			  {
+				this.style.border = "none";
+				it = null;
 				changeTemp();
-				document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
-				document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
-            }
-			if(this.getAttribute("vt") == 4)//futur simple
-            {
-				vtemp = this.getAttribute("vt");
-				changeTemp();
-				document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
-				document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
-            }
-			if(this.getAttribute("vt") == 5)//conditionnel
-            {
-				vtemp = this.getAttribute("vt");
-				changeTemp();
-				document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
-				document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
-            }
-            this.style.border = "1px solid #ff5252";
-            //esconder la correccion para no poder copiar
-            this.style.fontSize = "0";
+				r = false;
+			  }
+			  else//si estamos seleccionando el error
+			  {
+				r = true;//marcar que se va a reintentar
+				it = this.getAttribute("i");//poner el indice general para en caso de acertar borrar la fila
+				if(this.getAttribute("vt") == 0)//si es presente
+				{
+				  vtemp = this.getAttribute("vt");
+				  changeTemp();
+				  document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+				  document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+				}
+				if(this.getAttribute("vt") == 1)//si es passe compose
+				{
+				  if(this.getAttribute("va") == 0)//si es avoir
+				  {
 
-            translateVerbs();
-            //ocultar la ultima correccion
-            document.getElementById("c").style.background = "#B6B6B6";
-            document.getElementById("c").innerHTML = "";
-            document.getElementById("e1").innerHTML = "";
-            document.getElementById("e2").innerHTML = "";
-          }
-        }
-      }
+					document.querySelector('#verbAux [value="' + this.getAttribute("va") + '"]').selected = true;
+					vtemp = this.getAttribute("vt");
+					changeTemp();
+					document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+					document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+				  }
+				  else//si es etre
+				  {
+					vtemp = this.getAttribute("vt");
+					changeTemp();
+					document.querySelector('#verbAux [value="' + this.getAttribute("va") + '"]').selected = true;
+					document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+					document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+				  }
+
+				}
+				if(this.getAttribute("vt") == 2)//si es imperatif
+				{
+				  vtemp = this.getAttribute("vt");
+				  changeTemp();
+				  document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+				  document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+				}
+				if(this.getAttribute("vt") == 3)//si es imparfait
+				{
+					vtemp = this.getAttribute("vt");
+					changeTemp();
+					document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+					document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+				}
+				if(this.getAttribute("vt") == 4)//futur simple
+				{
+					vtemp = this.getAttribute("vt");
+					changeTemp();
+					document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+					document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+				}
+				if(this.getAttribute("vt") == 5)//conditionnel
+				{
+					vtemp = this.getAttribute("vt");
+					changeTemp();
+					document.querySelector('#verb [value="' + this.getAttribute("v") + '"]').selected = true;
+					document.querySelector('#person [value="' + this.getAttribute("p") + '"]').selected = true;
+				}
+				this.style.border = "1px solid #ff5252";
+				//esconder la correccion para no poder copiar
+				this.style.fontSize = "0";
+
+				translateVerbs();
+				//ocultar la ultima correccion
+				document.getElementById("c").style.background = "#B6B6B6";
+				document.getElementById("c").innerHTML = "";
+				document.getElementById("e1").innerHTML = "";
+				document.getElementById("e2").innerHTML = "";
+			  }
+			}
+		  }
     }
 
     function cl()
@@ -1135,19 +1344,49 @@
 
     function translateVerbs()
     {
-		if(navigator.language.substring(0, 2) == "es")
+		if(vtemp == 0)//si estamos en presente
 		{
-			//mostrar la traduccion del verbo
-			if(vtemp == 0)//si estamos en presente
+			try{
 				document.getElementById("vtranslation").innerHTML = vtranslationsPI[document.getElementById("verb").value][(document.getElementById("person").value)-1];
-			if(vtemp == 1)//si estamos en passe compose
+			}
+			catch(e){
+				document.getElementById("vtranslation").innerHTML = noTranslation;
+			}
+		}
+		
+		if(vtemp == 1)//si estamos en passe compose
+		{
+			if(document.getElementById("verbAux").value == 0)//si es avoir
 			{
-				if(document.getElementById("verbAux").value == 0)//si es avoir
+				if(uiLang == "eu")
 				{
-					document.getElementById("vauxPC").innerHTML = vauxPC[(document.getElementById("person").value)-1];
-					document.getElementById("vtranslation").innerHTML = vtranslationsPCAvoir[document.getElementById("verb").value];
+					if(document.getElementById("verb").value == 4)//in basque être acts different
+					{
+						document.getElementById("vauxPC").innerHTML = vtranslationsPCAvoir[document.getElementById("verb").value];
+						document.getElementById("vtranslation").innerHTML = vauxPronomPC[(document.getElementById("person").value)-1];
+					}
+					else
+					{
+						document.getElementById("vauxPC").innerHTML = vtranslationsPCAvoir[document.getElementById("verb").value];
+						document.getElementById("vtranslation").innerHTML = vauxPC[(document.getElementById("person").value)-1];
+					}
 				}
-				else//si es etre
+				else
+				{
+					if(vauxPC[(document.getElementById("person").value)-1] != undefined && vtranslationsPCAvoir[document.getElementById("verb").value] != undefined)
+					{
+						document.getElementById("vauxPC").innerHTML = vauxPC[(document.getElementById("person").value)-1];
+						document.getElementById("vtranslation").innerHTML = vtranslationsPCAvoir[document.getElementById("verb").value];
+					}
+					else
+					{
+						document.getElementById("vtranslation").innerHTML = noTranslation;
+					}
+				}
+			}
+			else//si es etre
+			{
+				if(uiLang == "es")
 				{
 					if(vtranslationsPCEtre[document.getElementById("verb").value].indexOf("  ") != -1)
 						document.getElementById("vauxPC").innerHTML = vauxPronomPC[(document.getElementById("person").value)-1] + vauxPC[(document.getElementById("person").value)-1].toLowerCase();
@@ -1155,25 +1394,68 @@
 						document.getElementById("vauxPC").innerHTML = vauxPC[(document.getElementById("person").value)-1];
 					document.getElementById("vtranslation").innerHTML = vtranslationsPCEtre[document.getElementById("verb").value];
 				}
+				if(uiLang == "eu")
+				{
+					document.getElementById("vauxPC").innerHTML = vtranslationsPCEtre[document.getElementById("verb").value];
+					document.getElementById("vtranslation").innerHTML = vauxPronomPC[(document.getElementById("person").value)-1];
+				}
+				if(uiLang == "en")
+				{
+					if(document.getElementById("verb").value == 3 || document.getElementById("verb").value == 4)
+					{
+						document.getElementById("vauxPC").innerHTML = vauxPC[(document.getElementById("person").value)-1];
+						document.getElementById("vtranslation").innerHTML = vtranslationsPCEtre[document.getElementById("verb").value];
+					}
+					else if(document.getElementById("verb").value >= 5 && document.getElementById("verb").value <= 12)
+					{
+						document.getElementById("vauxPC").innerHTML = vauxPC[(document.getElementById("person").value)-1].substring(0, vauxPC[(document.getElementById("person").value)-1].indexOf(" "));
+						document.getElementById("vtranslation").innerHTML = vtranslationsPCEtre[document.getElementById("verb").value];
+					}
+					else
+					{
+						document.getElementById("vauxPC").innerHTML = vauxPronomPC[(document.getElementById("person").value)-1];
+						document.getElementById("vtranslation").innerHTML = vtranslationsPCEtre[document.getElementById("verb").value];
+					}
+				}
 			}
-			if(vtemp == 2)//si estamos en imperatif
-			{
-				var per1 = 0;
-				if(document.getElementById("person").value == 4) per1 = 1;
-				if(document.getElementById("person").value == 5) per1 = 2;
+		}
+		if(vtemp == 2)//si estamos en imperatif
+		{
+			var per1 = 0;
+			if(document.getElementById("person").value == 4) per1 = 1;
+			if(document.getElementById("person").value == 5) per1 = 2;
+			try{
 				document.getElementById("vtranslation").innerHTML = vtranslationsImp[document.getElementById("verb").value][per1];
 			}
-			if(vtemp == 3)//si estamos en imparfait
-			{
+			catch(e){
+				document.getElementById("vtranslation").innerHTML = noTranslation;
+			}
+		}
+		if(vtemp == 3)//si estamos en imparfait
+		{
+			try{
 				document.getElementById("vtranslation").innerHTML = vtranslationsImparfait[document.getElementById("verb").value][(document.getElementById("person").value)-1];
 			}
-			if(vtemp == 4)//futur simple
-			{
+			catch(e){
+				document.getElementById("vtranslation").innerHTML = noTranslation;
+			}
+		}
+		if(vtemp == 4)//futur simple
+		{
+			try{
 				document.getElementById("vtranslation").innerHTML = vtranslationsFuturSimple[document.getElementById("verb").value][(document.getElementById("person").value)-1];
 			}
-			if(vtemp == 5)//conditionnel
-			{
+			catch(e){
+				document.getElementById("vtranslation").innerHTML = noTranslation;
+			}
+		}
+		if(vtemp == 5)//conditionnel
+		{
+			try{
 				document.getElementById("vtranslation").innerHTML = vtranslationsConditionnel[document.getElementById("verb").value][(document.getElementById("person").value)-1];
+			}
+			catch(e){
+				document.getElementById("vtranslation").innerHTML = noTranslation;
 			}
 		}
     }
@@ -1248,18 +1530,20 @@
 	    hideSettings();
 		translateVerbs();
 	}
+	
+	function setUILang(l)
+	{
+		uiLang = l;
+		localStorage.setItem("uiLang", uiLang);
+		location.reload();
+	}
 	</script>
   <style>
-	html{
-	  overflow: hidden;
-	}
     body{
       font-family:'Helvetica','Arial',sans-serif;
-      margin: 0;
-	  padding-top: 8px;
+      margin: 8px 0 0 0;
       text-align: center;
       overflow: hidden;
-	  max-width: 100%;
     }
     div#settings{
       float: left;
@@ -1269,7 +1553,6 @@
       text-align: left;
       background: white;
       border-right: 1px solid grey;
-	    margin-top: -8px;
     }
     .classShowSettingsAnimation{
       animation-name: showSettingsAnimation;
@@ -1282,13 +1565,6 @@
       to{margin-left: 0;}
     }
     @-webkit-keyframes showSettingsAnimation{
-      /*los porcentajes son de la pantalla no del div
-      en pixels tampoco es lo ideal, pero queda mejor
-      0%  {margin-left: -100%;}
-      20% {margin-left: -80%;}
-      40% {margin-left: -60%;}
-      60% {margin-left: -40%;}
-      80% {margin-left: -20%;}*/
       from {margin-left: -400px;}
       to{margin-left: 0;}
     }
@@ -1391,7 +1667,7 @@
 		margin: -10px -10px 0 0;
 		padding: 14px 14px 9px 14px;
 	}
-	select#verbalTense{
+	select#verbTense{
 		height: 40px;
 		width: auto;
 		font-family: Arial;
@@ -1445,9 +1721,9 @@
     </div>
 	<div id="settingsElements">
 		<div id="mVerbsTempaux" class="mOption">
-		  <i><span id="tempsverbaux">Verbal tense</span></i>
+		  <i><span id="tempsverbaux">Verb tense</span></i>
 		</div>
-		<select id="verbalTense" onchange="setVerbalTense(this.value)">
+		<select id="verbTense" onchange="setVerbalTense(this.value)">
           <option value="0">Présent de l'indicatif</option>
           <option value="1">Passé Composé</option>
           <option value="2">Impératif</option>
@@ -1462,18 +1738,26 @@
 		  <input type="checkbox" id="random" onchange="switchRandom(); switchSettings();"/>
 		  <span id="aleatoire">Random verbs</span>
 		</div>
-		<div id="mTranslations" class="mOption" style="display: none;">
+		<div id="mTranslations" class="mOption">
 		  <input type="checkbox" id="checkboxTranslations" onchange="switchTranslations()"/>
-		  <span id="tmTranslations"></span>
+		  <span id="tmTranslations">Display the meaning of the verbs</span>
 		</div>
 		<div class="mOption">
 		  <input type="checkbox" id="checkboxPasseCompose" onchange="switchPCSelect()"/>
 		  <span id="tmShowPasseCompose">Hide Avoir or Être in Passé Composé</span>
 		</div>
+		<div class="mOption">
+			<span id="tmUILang">Interface language</span>
+			<select id="sUILang" onchange="setUILang(this.value)">
+				<option value="en">English</option>
+				<option value="es">Spanish</option>
+				<option value="eu">Basque</option>
+			</select>
+		</div>
 	</div>
 	<div id="settingsFooter">
 		&#9993;&#9888;&#8230;
-		<a href="https://github.com/beriain/VerbosFrances/issues"><span id="issues">Suggestion, bugs, etc</span><a/>
+		<a href="#" id="contact">Suggestion, bugs, etc.<a/>
 	</div>
   </div>
   <div id="menu">
